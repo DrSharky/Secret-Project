@@ -14,13 +14,12 @@ public class LightFlicker : MonoBehaviour
     float timeInterval = 5.0f, timeCount = 0.0f;
 
 	void Start ()
-    {
-
+	{
+	    //StartCoroutine();
 	}
 	
 	void Update ()
-    {
-		if(timeCount >= timeInterval) { }
-            //StartCoroutine();
+	{
+	
 	}
 }
