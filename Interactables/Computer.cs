@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 //TODO: Add functionality for audio source. - only email & hacking audio stuff not done.
@@ -126,6 +125,12 @@ public class Computer : MonoBehaviour, IInteractable
     private string passSucc = "Password Succeeded";
     private string passFail = "Password Failed";
 
+    private string displayPassAccepted = "Password accepted: <";
+    private string grthan = ">";
+    private string entering = "Entering ";
+
+    private string alpha = "abcdefghijklmnopqrstuvwxyz";
+
     private WaitForSeconds screenSaverDelay = new WaitForSeconds(2.0f);
 
     private Vector2 screenSaverPos = new Vector2();
@@ -136,6 +141,8 @@ public class Computer : MonoBehaviour, IInteractable
     public static bool usingComputer = false;
 
     private bool errorDisplay = false;
+
+    private ScreenType currentScreenType = ScreenType.Normal;
 
     void Start()
 	{
@@ -204,18 +211,30 @@ public class Computer : MonoBehaviour, IInteractable
         if (moveSaverTime)
             StartCoroutine(MoveScreenSaver());
 
-
-        //If the user presses Esc & is using the computer,
-        //then reset the computer and give player control back.
-        if (Input.GetKeyUp(KeyCode.Escape) && usingComputer)
-            ExitScreen();
-
-        if (usingComputer && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+        if (usingComputer)
         {
-            if (passwordText.isFocused)
-                PasswordEnter();
-            else
-                CommandEnter();
+
+            //If the user presses Esc & is using the computer,
+            //then reset the computer and give player control back.
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (currentScreenType == ScreenType.Password || currentScreenType == ScreenType.EmailMenu)
+                    ShowMenu(homeCommand);
+                else if (currentScreenType == ScreenType.Normal)
+                    ExitScreen();
+            }
+            else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                if (currentScreenType == ScreenType.Password)
+                    PasswordEnter();
+                else
+                    CommandEnter();
+            }
+            else if(Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            {
+                //Start hacking process.
+                StartHacking();
+            }
         }
     }
 
@@ -279,14 +298,34 @@ public class Computer : MonoBehaviour, IInteractable
 
     void PasswordEnter()
     {
-        if(passwordText.text == currentCommandMenu.password)
+        //Password accepted.
+        if (passwordText.text == currentCommandMenu.password)
         {
-            //Password accepted.
+            Debug.Log("accepted: " + passwordText.text);
+
+            //set the hacked to true, so user doesn't have to hack again.
+            currentCommandMenu.alreadyHacked = true;
+
+            //Set the display text panel to show the appropriate message.
+            mainText.text = displayPassAccepted + currentCommandMenu.password + grthan + newLine
+                + entering + currentCommandMenu.commandText + ".";
+
+            //Set the title text to the appropriate message.
+            titleText.text = passSucc;
+
+            //Hide the password input, need to show the Press Enter prompt after password succeeds.
+            //The command input sets to proper display text when the display panel is toggled to true.
+            EventManager.TriggerEvent(EventManager.passwordPanelToggle + gameObject.name, false);
+            EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, true);
+
         }
+        //Password failed.
         else
         {
-            //Password failed.
+            Debug.Log("failed: " + passwordText.text);
         }
+
+        ResetPasswordText();
     }
 
     //The method that runs when a command is entered.
@@ -339,8 +378,9 @@ public class Computer : MonoBehaviour, IInteractable
                 {
                     if (enteredMenu.hackable)
                     {
+                        currentCommandMenu = enteredMenu;
                         ShowHacking();
-                        //TODO: DEBUG.
+                        currentScreenType = ScreenType.Password;
                         return;
                     }
                     ShowMenu(enteredMenu);
@@ -376,6 +416,13 @@ public class Computer : MonoBehaviour, IInteractable
 
     void ShowHacking()
     {
+        mainText.text = null;
+
+        //Separate logic if the password has already been entered before &
+        //does not require hacking if so.
+
+        computerAudioSource.PlayOneShot(errorSound);
+
         //Set title text to "Password required" & subtitle text to nothing.
         titleText.text = passReq;
         subtitleText.text = null;
@@ -393,6 +440,45 @@ public class Computer : MonoBehaviour, IInteractable
         //Set the password input field as the active UI element.
         passwordText.Select();
         passwordText.ActivateInputField();
+    }
+
+    void StartHacking()
+    {
+        int passwordLength = currentCommandMenu.password.Length;
+        StartCoroutine(GetRandPassword(passwordLength));
+    }
+
+    //This creates the effect of the letters in the password
+    //being randomized while the hacking is attempted.
+    IEnumerator GetRandPassword(int waitTime)
+    {
+        float beginningTime = Time.time;
+        while (true)
+        {
+            if(Time.time - ( beginningTime + 1) > currentCommandMenu.password.Length)
+                break;
+            else
+                RandomizeLetters((int)(Time.time - beginningTime));
+
+            yield return new WaitForSeconds(0.0f);
+        }
+        PasswordEnter();
+    }
+
+    void RandomizeLetters(int index = 0)
+    {
+        passwordText.text = currentCommandMenu.password.Substring(0, index) + GetRandomLetters(currentCommandMenu.password.Length - index);
+    }
+
+    string GetRandomLetters(int wordLength)
+    {
+        string builtString = "";
+        for(int i = 0; i < wordLength; i++)
+        {
+            int index = Random.Range(0, 26);
+            builtString += alpha[index];
+        }
+        return builtString;
     }
 
     //Display the correct menu & commands.
@@ -471,6 +557,13 @@ public class Computer : MonoBehaviour, IInteractable
         cmdCaret.Reset();
     }
 
+    void ResetPasswordText()
+    {
+        passwordText.interactable = true;
+        passwordText.text = null;
+        passCaret.Reset();
+    }
+
     void SelectCommandText()
     {
         commandText.Select();
@@ -514,4 +607,14 @@ public class Computer : MonoBehaviour, IInteractable
         a[0] = char.ToUpper(a[0]);
         return new string(a);
     }
+}
+
+//Use this to determine behavior when pressing ENTER & ESC.
+//Better than using several booleans.
+public enum ScreenType
+{
+    Normal,
+    Password,
+    Email,
+    EmailMenu
 }

@@ -60,7 +60,9 @@ public class MenuCommand : ComputerCommand
 [Serializable]
 public class EmailCommand : ComputerCommand
 {
+    [HideInInspector]
     public bool read;
+
     protected bool questRelated;
     public string sender;
     public string subject;
@@ -103,8 +105,11 @@ public enum MessageType
 [Serializable]
 public class EmailInfo
 {
-    public bool hasEmail = false;
+    [HideInInspector]
     public int totalEmails = 0;
+    [HideInInspector]
     public int unreadEmails = 0;
+
+    public bool hasEmail = false;
     public string emailTitle = "Email for ";
 }
