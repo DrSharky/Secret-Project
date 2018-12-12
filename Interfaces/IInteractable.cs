@@ -8,6 +8,21 @@ using UnityEngine;
 /// </summary>
 public interface IInteractable
 {
+    /// <summary>
+    /// The method to run when the player uses the interactable.
+    /// </summary>
     void Activate();
+
+    /// <summary>
+    /// The boolean to check whether or not using the interactable
+    /// freezes the player.
+    /// </summary>
     bool freezePlayer { get; set; }
+
+    /// <summary>
+    /// The boolean to check whether the interactable
+    /// should be highlighted or not.
+    /// </summary>
+    bool highlight { get; set; }
+
 }

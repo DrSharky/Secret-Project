@@ -9,29 +9,30 @@ public interface IComputerPanel
     void ActivatePanel();
     void DeactivatePanel();
     System.Action ExitScreenListener { get; set; }
+    void OnDestroy();
 }
 
-public interface IMenuPanel
+public interface IMenuPanel : IComputerPanel
 {
     System.Action<bool> MenuPanelListener { get; set; }
 }
 
-public interface IDisplayPanel
+public interface IDisplayPanel : IComputerPanel
 {
     System.Action<bool> DisplayPanelListener { get; set; }
 }
 
-public interface IEmailPanel
+public interface IEmailPanel : IComputerPanel
 {
     System.Action<bool> EmailPanelListener { get; set; }
 }
 
-public interface IPasswordInputPanel
+public interface IPasswordInputPanel : IComputerPanel
 {
     System.Action<bool> PasswordInputPanelListener { get; set; }
 }
 
-public interface ITitlePanel
+public interface ITitlePanel : IComputerPanel
 {
     System.Action<bool> TitlePanelListener { get; set; }
 }

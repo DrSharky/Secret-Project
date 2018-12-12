@@ -14,4 +14,11 @@ public class MenuParentPanel : MenuPanel, IDisplayPanel, IEmailPanel
         //Set the activate bool to !activate, to do the opposite operation to the emailPanel.
         GenerateActivationEvent(EmailPanelListener, EventManager.emailPanelToggle, false);
     }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        StopEventListening(EventManager.displayPanelToggle, DisplayPanelListener);
+        StopEventListening(EventManager.emailPanelToggle, EmailPanelListener);
+    }
 }

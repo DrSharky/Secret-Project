@@ -9,4 +9,9 @@
         { if (activate) { ActivatePanel(); } else { DeactivatePanel(); } });
         EventManager.StartListening(EventManager.menuPanelToggle + transform.parent.name, MenuPanelListener);
     }
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        StopEventListening(EventManager.menuPanelToggle, MenuPanelListener);
+    }
 }

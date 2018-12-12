@@ -3,12 +3,6 @@ using UnityEngine;
 using TMPro;
 using System;
 
-//Yeah, I know, having a workarounds folder isn't good.
-//But this was necessary. And (as far as I know) there's
-//no easy way to do what I wanted to do here.
-//Which was to replace the normal "caret" in a UI InputField, |
-//with an underscore instead: _
-//Maybe if Unity makes this customizable I wouldn't have to.
 public class Caret : MonoBehaviour
 {
     ///<summary> The text object for the caret. </summary>

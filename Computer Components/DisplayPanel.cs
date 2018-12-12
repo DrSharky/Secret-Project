@@ -7,4 +7,10 @@
         base.Start();
         GenerateActivationEvent(DisplayPanelListener, EventManager.displayPanelToggle, true);
     }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        StopEventListening(EventManager.displayPanelToggle, DisplayPanelListener);
+    }
 }

@@ -7,4 +7,10 @@
         base.Start();
         GenerateActivationEvent(PasswordInputPanelListener, EventManager.passwordPanelToggle, true);
     }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        StopEventListening(EventManager.passwordPanelToggle, PasswordInputPanelListener);
+    }
 }

@@ -11,8 +11,9 @@ using UnityEngine;
 public class Container : MonoBehaviour, IInteractable
 {
     private bool freeze = true;
-
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
+    private bool highlightable = true;
+    public bool highlight { get { return highlightable; } set { highlightable = value; } }
 
     [SerializeField]
     private Animator anim;

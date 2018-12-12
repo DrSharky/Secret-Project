@@ -6,6 +6,8 @@ public class NPC : MonoBehaviour, IInteractable
 {
     private bool freeze = true;
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
+    private bool highlightable = false;
+    public bool highlight { get { return highlightable; } set { highlightable = value; } }
 
     GameObject player;
     Animator anim;

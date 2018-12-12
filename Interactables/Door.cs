@@ -9,6 +9,8 @@ public class Door : MonoBehaviour, IInteractable
 {
     private bool freeze = false;
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
+    private bool highlightable = false;
+    public bool highlight { get { return highlightable; } set { highlightable = value; } }
 
     public AudioClip openSound;
     public AudioClip closeSound;

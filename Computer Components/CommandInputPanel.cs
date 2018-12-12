@@ -28,4 +28,11 @@
         EventManager.StartListening(EventManager.displayPanelToggle + transform.parent.name, DisplayPanelListener);
         GenerateActivationEvent(PasswordInputPanelListener, EventManager.passwordPanelToggle, false);
     }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        StopEventListening(EventManager.displayPanelToggle, DisplayPanelListener);
+        StopEventListening(EventManager.passwordPanelToggle, PasswordInputPanelListener);
+    }
 }

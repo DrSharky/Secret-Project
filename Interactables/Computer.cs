@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//TODO: Add functionality for audio source. - only email & hacking audio stuff not done.
-//TODO: Add logic for hacking functionality.
+//TODO: Add functionality for audio source. - only email audio stuff not done.
+//TODO: Add logic for hacking functionality. - only the failed password stuff not done.
+//TODO: Separate the screen saver code into a different script. It will make this shorter and more tolerable.
 
 /// <summary>
 /// The class to use for interactive computers.
 /// </summary>
 public class Computer : MonoBehaviour, IInteractable
 {
+    #region Variables
+    #region IInteractable 
+    //Implements the IInteractable interface.
+    //Determines whether using this interactable object will freeze the player or not.
     private bool freeze = true;
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
+    private bool highlightable = true;
+    public bool highlight { get { return highlightable; } set { highlightable = value; } }
+    #endregion
 
+    #region Menus, Commands, Emails
     //List of possible commands at the home menu.
     //Defined in the inspector depending on which computer.
     [SerializeField]
@@ -27,31 +36,21 @@ public class Computer : MonoBehaviour, IInteractable
     //List of the emails for the computer.
     [SerializeField]
     private List<EmailCommand> emails;
+    #endregion
 
+    #region Panel GameObjects
+    [Header("Panels")]
     public GameObject titlePanel;
     public GameObject menuParentPanel;
     public GameObject commandInputPanel;
     public GameObject displayTextPanel;
+    #endregion
 
+    #region Text Components
+    [Header("Text Components")]
     public Text menuListText;
     public Text commandListText;
     public Text mainText;
-
-    //The input field for the text input gameobject.
-    [SerializeField]
-    //private InputField commandText;
-    private TMPro.TMP_InputField commandText;
-
-    [SerializeField]
-    private TMPro.TMP_InputField passwordText;
-
-    //For accessing the title text to change it later.
-    //Assign this in Start().
-    private Text titleText;
-
-    //For accessing the subtitle text to change it later.
-    //Assign this in Start().
-    private Text subtitleText;
 
     //For accessing the menu title text to change it later.
     //Assign this in Start().
@@ -61,23 +60,49 @@ public class Computer : MonoBehaviour, IInteractable
     //Assign this in Start().
     public Text emailTitleText;
 
-    //Need this to determine width & height of screen.
-    private RectTransform rectTransform;
+    //For accessing the title text to change it later.
+    //Assign this in Start().
+    private Text titleText;
 
+    //For accessing the subtitle text to change it later.
+    //Assign this in Start().
+    private Text subtitleText;
+
+    private Text[] titleObjects;
+
+    #endregion
+
+    #region Text Mesh Pro InputFields
+    [Header("TM_Pro InputFields")]
+    //The input field for the text input gameobject.
+    [SerializeField]
+    //private InputField commandText;
+    private TMPro.TMP_InputField commandText;
+
+    [SerializeField]
+    private TMPro.TMP_InputField passwordText;
+    #endregion
+
+    #region Command Fields
     //Always have a home command.
     private MenuCommand homeCommand;
     //Always have a quit command.
     private ComputerCommand quitCommand;
     //Always have a help command.
     private ComputerCommand helpCommand;
+    //Variable to store the current menu.
+    private MenuCommand currentCommandMenu;
+    #endregion
 
+    #region Home Header Strings
+    [Header("Home Header Strings")]
     //Set the home command's title & subtitle in the inspector.
     public string homeCommandTitle;
     public string homeCommandSubtitle;
+    #endregion
 
-    //Variable to store the current menu.
-    private MenuCommand currentCommandMenu;
-
+    #region Screen Saver Fields
+    [Header("Screen Saver Fields")]
     //Screen Saver objects and time boolean.
     [SerializeField]
     private GameObject ScreenSaverText;
@@ -86,18 +111,33 @@ public class Computer : MonoBehaviour, IInteractable
     [SerializeField]
     private GameObject ScreenSaverWhite;
     private bool moveSaverTime = true;
+    private WaitForSeconds screenSaverDelay = new WaitForSeconds(2.0f);
+    private Vector2 screenSaverPos = new Vector2();
+    #endregion
 
+    #region Rect Transforms
+    //Need this to determine width & height of screen.
+    private RectTransform rectTransform;
     private RectTransform screenSaverTransform;
+    #endregion
 
+    #region Email Info
+    [Header("Email Info")]
     //We need one of these, of course.
     [SerializeField]
     private EmailInfo emailInfo;
+    #endregion
 
+    #region Carets
+    [Header("Carets")]
     [SerializeField]
     private Caret cmdCaret;
     [SerializeField]
     private Caret passCaret;
+    #endregion
 
+    #region Audio Components
+    [Header("Audio Components")]
     //Audio source for the computer.
     //Default clip is accessSound.
     public AudioSource computerAudioSource;
@@ -106,57 +146,71 @@ public class Computer : MonoBehaviour, IInteractable
     public AudioClip accessSound;
     public AudioClip errorSound;
     public AudioClip typingSound;
+    #endregion
 
-    private Text[] titleObjects;
+    #region Error Strings
+    //Made this a text area because I'm not sure how to format it properly as a simple string.
+    //NOTE: Might change later.
+    [Space(10)]
+    [TextArea]
+    public string errorText;
+    private string helpTitle = "Help information";
+    #endregion
 
+    #region Command Strings
     private string listCmd = "list";
     private string emailCmd = "email";
     private string menuIndent = "   ";
     private string newLine = "\n";
     private string helpCmd = "help";
     private string quitCmd = "quit";
+    #endregion
 
-    [TextArea]
-    public string errorText;
-
-    private string helpTitle = "Help information";
-    private string emptyString = "";
+    #region Password Strings
     private string passReq = "Password required";
     private string passSucc = "Password Succeeded";
     private string passFail = "Password Failed";
-
     private string displayPassAccepted = "Password accepted: <";
     private string grthan = ">";
     private string entering = "Entering ";
+    #endregion
 
+    #region Miscellanous Strings
+    private string emptyString = "";
     private string alpha = "abcdefghijklmnopqrstuvwxyz";
+    #endregion
 
-    private WaitForSeconds screenSaverDelay = new WaitForSeconds(2.0f);
-
-    private Vector2 screenSaverPos = new Vector2();
+    #region Other Variables
 
     //Boolean to tell other things if the player is using the computer currently.
-    //Use this instead of Time.timescale = 0; because player can still be interrupted
-    //while using the computer.
     public static bool usingComputer = false;
-
     private bool errorDisplay = false;
+    private bool isHacking = false;
 
     private ScreenType currentScreenType = ScreenType.Normal;
+    #endregion
+    #endregion
 
+    #region Methods
+
+    #region MonoBehaviour Methods
     void Start()
 	{
+        //Use this to get the width & height of screen.
+        //Needed for the screen saver routine.
+        rectTransform = gameObject.GetComponent<RectTransform>();
+
+        //Use this to get the width & height of the screen saver
+        //text so when picking a random position, it doesn't overlap the edges.
         screenSaverTransform = ScreenSaverText.GetComponent<RectTransform>();
 
+        //Computer panel structure will always be the same, so the direct index
+        //references with 4 & 5 are fine.
         titleObjects = titlePanel.GetComponentsInChildren<Text>();
         if (titleObjects[4] != null)
             titleText = titleObjects[4];
         if (titleObjects[5] != null)
             subtitleText = titleObjects[5];
-
-        //Use this to get the width & height of screen.
-        //Needed for the screen saver routine.
-        rectTransform = gameObject.GetComponent<RectTransform>();
 
         //Add these to every computer.
         helpCommand = new ComputerCommand(helpCmd);
@@ -175,30 +229,38 @@ public class Computer : MonoBehaviour, IInteractable
         //Then set the current menu to the home menu.
         if (emailInfo.hasEmail)
         {
+            //Email menu should always be the first in the list.
             EmailMenuCommand emailCommand = new EmailMenuCommand();
             menus.Insert(0, emailCommand);
 
-
+            //Populate the email list.
             emailCommand.AssignEmails(emails);
 
+            //Home menu should always be after the email menu, if email menu exists.
             menus.Insert(1, homeCommand);
+            //Set the current menu to the home menu.
             currentCommandMenu = menus[1];
 
+            //Set the email text to the correct format.
             ChangeEmailTitleText();
         }
         else
         {
+            //If no email menu exists for the computer, then assign
+            //the home menu to be first in the list, and set as current menu.
             menus.Insert(0, homeCommand);
             currentCommandMenu = menus[0];
         }
 
+        //Populate the menu list for the home command menu.
         homeCommand.displayText = MenusList(homeCommand);
 
         //Set the display text for all the menus at start,
         //instead of running them at activation. This will save memory in the long run.
         for(int i = 0; i < menus.Count; i++)
         {
-            //menus[i].displayText = MenusList(menus[i]);
+            //If the menu is not email menu, then populate the commands list string
+            //from the subcommands of the menu.
             if(!menus[i].commandText.Equals(emailCmd, System.StringComparison.Ordinal))
                 menus[i].commandsDisplayText = CommandsList(menus[i].subCommands);
         }
@@ -213,7 +275,6 @@ public class Computer : MonoBehaviour, IInteractable
 
         if (usingComputer)
         {
-
             //If the user presses Esc & is using the computer,
             //then reset the computer and give player control back.
             if (Input.GetKeyUp(KeyCode.Escape))
@@ -223,21 +284,33 @@ public class Computer : MonoBehaviour, IInteractable
                 else if (currentScreenType == ScreenType.Normal)
                     ExitScreen();
             }
+            else if (isHacking)
+                return;
             else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 if (currentScreenType == ScreenType.Password)
-                    PasswordEnter();
+                {
+                    if (!currentCommandMenu.alreadyHacked)
+                        PasswordEnter();
+                    else
+                    {
+                        SelectCommandText();
+                        ShowMenu(currentCommandMenu);
+                    }
+                }
                 else
                     CommandEnter();
             }
-            else if(Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            else if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) && currentScreenType == ScreenType.Password)
             {
-                //Start hacking process.
+                //If Ctrl is pressed on a hackable menu, start hacking process.
                 StartHacking();
             }
         }
     }
+    #endregion
 
+    #region Activate / Deactivate Computer
     //User activated the computer by interacting with it.
     public void Activate()
     {
@@ -255,6 +328,7 @@ public class Computer : MonoBehaviour, IInteractable
         //is using a computer.
         usingComputer = true;
 
+        //Show the home menu on activation.
         ShowMenu(homeCommand);
 
         //Select the input box so that the user doesn't
@@ -268,6 +342,7 @@ public class Computer : MonoBehaviour, IInteractable
     void ExitScreen()
     {
         ResetCommandText();
+        ResetPasswordText();
 
         //Set the screen saver to be active again.
         ScreenSaverText.SetActive(true);
@@ -283,24 +358,17 @@ public class Computer : MonoBehaviour, IInteractable
 
         RigidbodyFirstPersonController.frozen = false;
     }
+    #endregion
 
-    private void ShowErrorText()
-    {
-        //Play error sound when error text is displayed.
-        mainText.text = errorText;
-        //displayTextPanel.SetActive(true);
-        //menuParentPanel.SetActive(false);
-        EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, true);
-        titleText.text = helpTitle;
-        subtitleText.text = emptyString;
-        errorDisplay = true;
-    }
-
-    void PasswordEnter()
+    #region Text Input Methods
+    void PasswordEnter(string enteredPassword = null)
     {
         //Password accepted.
-        if (passwordText.text == currentCommandMenu.password)
+        if (enteredPassword == currentCommandMenu.password)
         {
+            computerAudioSource.PlayOneShot(acceptSound);
+
+            //DEBUG: Delete this eventually.
             Debug.Log("accepted: " + passwordText.text);
 
             //set the hacked to true, so user doesn't have to hack again.
@@ -317,15 +385,20 @@ public class Computer : MonoBehaviour, IInteractable
             //The command input sets to proper display text when the display panel is toggled to true.
             EventManager.TriggerEvent(EventManager.passwordPanelToggle + gameObject.name, false);
             EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, true);
-
+            ResetPasswordText();
         }
         //Password failed.
         else
         {
+            computerAudioSource.PlayOneShot(errorSound);
+
+            //DEBUG: Delete this eventually.
             Debug.Log("failed: " + passwordText.text);
+
+            ResetPasswordText();
+            SelectPasswordText();
         }
 
-        ResetPasswordText();
     }
 
     //The method that runs when a command is entered.
@@ -379,9 +452,19 @@ public class Computer : MonoBehaviour, IInteractable
                     if (enteredMenu.hackable)
                     {
                         currentCommandMenu = enteredMenu;
-                        ShowHacking();
-                        currentScreenType = ScreenType.Password;
-                        return;
+                        if (!currentCommandMenu.alreadyHacked)
+                        {
+                            ShowHacking();
+                            currentScreenType = ScreenType.Password;
+                            return;
+                        }
+                        else
+                        {
+                            //Make sure that the other commands don't enter a password if
+                            //the menu has already been hacked.
+                            if(currentScreenType == ScreenType.Password)
+                                PasswordEnter();
+                        }
                     }
                     ShowMenu(enteredMenu);
                     computerAudioSource.PlayOneShot(acceptSound);
@@ -403,7 +486,9 @@ public class Computer : MonoBehaviour, IInteractable
         ResetCommandText();
         SelectCommandText();
     }
+    #endregion
 
+    #region Show Menu Methods
     void ShowEmailMenu()
     {
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
@@ -414,6 +499,26 @@ public class Computer : MonoBehaviour, IInteractable
         //Create an extra panel for email instructions to activate.
     }
 
+    //Display the correct menu & commands.
+    void ShowMenu(MenuCommand openMenu)
+    {
+        if (passCaret.gameObject.activeInHierarchy)
+        {
+            passCaret.gameObject.SetActive(false);
+            cmdCaret.gameObject.SetActive(true);
+        }
+
+        currentCommandMenu = openMenu;
+        SetTitleText();
+        menuListText.text = currentCommandMenu.displayText;
+        commandListText.text = currentCommandMenu.commandsDisplayText;
+        EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, false);
+        EventManager.TriggerEvent(EventManager.menuPanelToggle + gameObject.name, true);
+        currentScreenType = ScreenType.Normal;
+    }
+    #endregion
+
+    #region Hacking Methods
     void ShowHacking()
     {
         mainText.text = null;
@@ -444,6 +549,8 @@ public class Computer : MonoBehaviour, IInteractable
 
     void StartHacking()
     {
+        isHacking = true;
+        computerAudioSource.PlayOneShot(typingSound);
         int passwordLength = currentCommandMenu.password.Length;
         StartCoroutine(GetRandPassword(passwordLength));
     }
@@ -455,14 +562,18 @@ public class Computer : MonoBehaviour, IInteractable
         float beginningTime = Time.time;
         while (true)
         {
-            if(Time.time - ( beginningTime + 1) > currentCommandMenu.password.Length)
+            if(Time.time - (beginningTime + 1) > currentCommandMenu.password.Length)
                 break;
             else
                 RandomizeLetters((int)(Time.time - beginningTime));
 
             yield return new WaitForSeconds(0.0f);
         }
-        PasswordEnter();
+        //Put the stop for the typing sound here, so it stops pretty much on time.
+        if (computerAudioSource.isPlaying)
+            computerAudioSource.Stop();
+        isHacking = false;
+        PasswordEnter(passwordText.text);
     }
 
     void RandomizeLetters(int index = 0)
@@ -475,20 +586,22 @@ public class Computer : MonoBehaviour, IInteractable
         string builtString = "";
         for(int i = 0; i < wordLength; i++)
         {
-            int index = Random.Range(0, 26);
+            int index = UnityEngine.Random.Range(0, 26);
             builtString += alpha[index];
         }
         return builtString;
     }
+    #endregion
 
-    //Display the correct menu & commands.
-    void ShowMenu(MenuCommand openMenu)
+    #region Change Text Methods
+    private void ShowErrorText()
     {
-        currentCommandMenu = openMenu;
-        SetTitleText();
-        menuListText.text = currentCommandMenu.displayText;
-        commandListText.text = currentCommandMenu.commandsDisplayText;
-        EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, false);
+        //Play error sound when error text is displayed.
+        mainText.text = errorText;
+        EventManager.TriggerEvent(EventManager.displayPanelToggle + gameObject.name, true);
+        titleText.text = helpTitle;
+        subtitleText.text = emptyString;
+        errorDisplay = true;
     }
 
     //Change the title based on what menu the user is on.
@@ -504,6 +617,16 @@ public class Computer : MonoBehaviour, IInteractable
         emailTitleText.text = "You have " + emailInfo.totalEmails + " emails, " + emailInfo.unreadEmails + " are unread.";
     }
 
+    //Uses char array for best performance.
+    string CapitalizeMenuName(string menuName)
+    {
+        char[] a = menuName.ToCharArray();
+        a[0] = char.ToUpper(a[0]);
+        return new string(a);
+    }
+    #endregion
+
+    #region List Command Methods
     //Returns a string that contains all the menu commands from a list.
     string MenusList(MenuCommand currentMenu)
     {
@@ -526,7 +649,9 @@ public class Computer : MonoBehaviour, IInteractable
         }
         return commandString;
     }
+    #endregion
 
+    #region Get Info Methods
     //TODO: GetEmailInfo() Email info needs to received for the computer.
     void GetEmailInfo()
     {
@@ -548,7 +673,9 @@ public class Computer : MonoBehaviour, IInteractable
         //Computer hack info has to be serialized & saved.
         //I don't have all of that persistent data stuff yet.
     }
+    #endregion
 
+    #region Input Field Methods
     //Resets the command text input field.
     void ResetCommandText()
     {
@@ -570,6 +697,14 @@ public class Computer : MonoBehaviour, IInteractable
         commandText.ActivateInputField();
     }
 
+    void SelectPasswordText()
+    {
+        passwordText.Select();
+        passwordText.ActivateInputField();
+    }
+    #endregion
+
+    #region Screen Saver Methods
     //Returns a random position on a computer screen for the screen saver.
     Vector2 RandomScreenPosition()
     {
@@ -599,14 +734,9 @@ public class Computer : MonoBehaviour, IInteractable
         yield return screenSaverDelay;
         moveSaverTime = true;
     }
+    #endregion
 
-    //Uses char array for best performance.
-    string CapitalizeMenuName(string menuName)
-    {
-        char[] a = menuName.ToCharArray();
-        a[0] = char.ToUpper(a[0]);
-        return new string(a);
-    }
+    #endregion
 }
 
 //Use this to determine behavior when pressing ENTER & ESC.

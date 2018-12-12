@@ -19,11 +19,11 @@ public class PlayerUse : MonoBehaviour
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 2.0f, layerMask) &&
+            if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 2.0f) &&
                 (hit.collider.gameObject.tag.Equals(interactableString, System.StringComparison.Ordinal)))
             {
                 interactableObject = hit.collider.gameObject.GetComponent<IInteractable>();
-                Debug.DrawLine(hit.point, playerCam.position, Color.green, 10.0f);
+                //Debug.DrawLine(hit.point, playerCam.position, Color.green, 10.0f);
                 if (Time.timeScale > 0f)
                 {
                     if (interactableObject.freezePlayer)
@@ -34,7 +34,7 @@ public class PlayerUse : MonoBehaviour
             }
             else
             {
-                Debug.DrawRay(playerCam.position, playerCam.forward*3, Color.yellow, 10.0f);
+                //Debug.DrawRay(playerCam.position, playerCam.forward*2, Color.yellow, 10.0f);
             }
         }
         if (Input.GetKeyDown(KeyCode.Escape))

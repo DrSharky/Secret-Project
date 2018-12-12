@@ -47,4 +47,19 @@ public class ComputerPanel : MonoBehaviour, IComputerPanel
 
         EventManager.StartListening(eventName + transform.parent.name, action);
     }
+
+    public virtual void StopEventListening(string eventName, System.Action action)
+    {
+        EventManager.StopListening(eventName + transform.parent.name, action);
+    }
+
+    public virtual void StopEventListening<T>(string eventName, System.Action<T> action)
+    {
+        EventManager.StopListening(eventName + transform.parent.name, action);
+    }
+
+    public virtual void OnDestroy()
+    {
+        StopEventListening(EventManager.exitScreenEvent, ExitScreenListener);
+    }
 }

@@ -11,6 +11,8 @@ public class Portal : IInteractable
 
     private bool freeze = false;
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
+    private bool highlightable = true;
+    public bool highlight { get { return highlightable; } set { highlightable = value; } }
     public string sceneToLoad;
 
     public void Activate()
