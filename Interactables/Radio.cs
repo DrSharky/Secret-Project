@@ -8,19 +8,19 @@ public class Radio : MonoBehaviour, IInteractable
     public bool freezePlayer { get { return freeze; } set { freeze = value; } }
     private bool highlightable = true;
     public bool highlight { get { return highlightable; } set { highlightable = value; } }
-    public AudioSource DebOfNight;
+    public AudioSource radioShow;
     private bool initialized = false;
 
     public void Activate()
     {
         if (!initialized)
         {
-            DebOfNight.Play();
+            radioShow.Play();
             initialized = true;
         }
-        else if (DebOfNight.volume == 0.26f)
-            DebOfNight.volume = 0.0f;
+        else if (radioShow.volume == 0.26f)
+            radioShow.volume = 0.0f;
         else
-            DebOfNight.volume = 0.26f;
+            radioShow.volume = 0.26f;
     }
 }
