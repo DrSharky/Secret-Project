@@ -7,6 +7,7 @@ public class Radio : Interactable
 
     public override void Activate()
     {
+		if (radioShow.volume == 0.0f)
         {
             if (!initialized)
             {
