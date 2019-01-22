@@ -1,15 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerUse : MonoBehaviour
 {
-
-    public Transform playerCam;
-
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
     private int layerMask = 1024;
-    private IInteractable interactableObject;
+    private Interactable interactableObject;
     private string useString = "Use";
     private string interactableString = "Interactable";
 
@@ -19,17 +14,20 @@ public class PlayerUse : MonoBehaviour
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 2.0f) &&
+            if (Physics.Raycast(transform.position, transform.forward, out hit, 2.0f) &&
                 (hit.collider.gameObject.tag.Equals(interactableString, System.StringComparison.Ordinal)))
             {
-                interactableObject = hit.collider.gameObject.GetComponent<IInteractable>();
+                GameObject intGO = hit.collider.gameObject;
+                interactableObject = intGO.GetComponent<Interactable>();
+                if (interactableObject == null)
+                    interactableObject = intGO.GetComponentInChildren<Interactable>();
                 //Debug.DrawLine(hit.point, playerCam.position, Color.green, 10.0f);
                 if (Time.timeScale > 0f)
                 {
                     if (interactableObject.freezePlayer)
                         RigidbodyFirstPersonController.frozen = true;
 
-                    interactableObject.Activate();
+                    EventManager.TriggerEvent("Activate" + interactableObject.gameObject.name);
                 }
             }
             else
@@ -37,7 +35,7 @@ public class PlayerUse : MonoBehaviour
                 //Debug.DrawRay(playerCam.position, playerCam.forward*2, Color.yellow, 10.0f);
             }
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
+        else if (Input.GetKeyDown(KeyCode.Escape) && !Computer.usingComputer)
         {
             if (RigidbodyFirstPersonController.frozen)
                 RigidbodyFirstPersonController.frozen = false;

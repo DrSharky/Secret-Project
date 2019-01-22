@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundScape : MonoBehaviour
@@ -42,8 +41,6 @@ public class SoundScape : MonoBehaviour
         // pos x = +z
         // pos y = -x
         float angleFromSource = Random.Range(selectedClip.angleMin, selectedClip.angleMax);
-        float xDir = distanceFromPlayer * Mathf.Sin(angleFromSource * Mathf.Deg2Rad);
-        float zDir = -distanceFromPlayer * Mathf.Cos(angleFromSource * Mathf.Deg2Rad);
         Vector3 newDir = PolarToCartesian(angleFromSource, distanceFromPlayer, heightFromSource);
         GameObject newAudio = Instantiate(randomAudioSource, newDir, transform.rotation);
         AudioSource randomSource = newAudio.GetComponent<AudioSource>();
@@ -52,7 +49,7 @@ public class SoundScape : MonoBehaviour
         randomSource.pitch = Random.Range(selectedClip.pitchMin, selectedClip.pitchMax);
         randomSource.maxDistance = selectedClip.radius;
         randomSource.Play();
-        yield return new WaitForSeconds(randomSource.clip.length);
+        yield return new WaitForSeconds(selectedClip.audioClip.length);
         Destroy(newAudio);
     }
 

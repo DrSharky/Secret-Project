@@ -7,16 +7,20 @@ public class ComputerPanel : MonoBehaviour, IComputerPanel
     private Color visible = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     public Color Active { get { return visible; } set { visible = value; } }
     public UnityEngine.UI.Text[] Children { get; set; }
-    public System.Action ExitScreenListener { get; set; }
+    public System.Action<bool> ExitScreenListener { get; set; }
 
     public virtual void Start()
     {
         Children = GetComponentsInChildren<UnityEngine.UI.Text>();
-        ExitScreenListener = new System.Action(() => { DeactivatePanel(); });
+        ExitScreenListener = new System.Action<bool>((activate) => { DeactivatePanel(); });
         EventManager.StartListening(EventManager.exitScreenEvent + transform.parent.name, ExitScreenListener);
+
+        //Can only exit screen when outside of email menus. So the exit event can be used to
+        //disable the other panels when entering the email menu.
+        EventManager.StartListening(EventManager.emailPanelToggle + transform.parent.name, ExitScreenListener);
     }
 
-    public void ActivatePanel()
+    public virtual void ActivatePanel()
     {
         for (int i = 0; i < Children.Length; i++)
         {
@@ -24,7 +28,7 @@ public class ComputerPanel : MonoBehaviour, IComputerPanel
         }
     }
 
-    public void DeactivatePanel()
+    public virtual void DeactivatePanel()
     {
         for (int i = 0; i < Children.Length; i++)
         {

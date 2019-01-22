@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using System;
 
-public class EventManager : MonoBehaviour
+public class EventManager : ScriptableObject
 {
     #region Event strings
     //For handling the hiding/showing of the display panel on Computers.
@@ -36,10 +34,10 @@ public class EventManager : MonoBehaviour
         {
             if (!eventManager)
             {
-                eventManager = FindObjectOfType(typeof(EventManager)) as EventManager;
+                eventManager = CreateInstance<EventManager>();
 
                 if (!eventManager)
-                    Debug.LogError("Needs 1 active EventManager script on a GO in your scene!");
+                    Debug.LogError("Error creating EventManager SO!");
                 else
                     eventManager.Init();
             }

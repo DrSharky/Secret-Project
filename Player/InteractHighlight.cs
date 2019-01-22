@@ -48,7 +48,7 @@ public class InteractHighlight : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Interactable"))
         {
-            IInteractable interactable = other.gameObject.GetComponentInChildren<IInteractable>();
+            Interactable interactable = other.gameObject.GetComponentInChildren<Interactable>();
             if (interactable.highlight)
             {
                 gameObjects.Add(other.gameObject);
@@ -63,7 +63,7 @@ public class InteractHighlight : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Interactable"))
         {
-            if (other.gameObject.GetComponentInChildren<IInteractable>().highlight && gameObjects.Contains(other.gameObject))
+            if (other.gameObject.GetComponentInChildren<Interactable>().highlight && gameObjects.Contains(other.gameObject))
             {
                 gameObjects.Remove(other.gameObject);
                 Highlighter high = other.gameObject.GetComponentInChildren<Highlighter>();

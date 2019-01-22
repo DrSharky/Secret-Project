@@ -76,12 +76,13 @@ public class EmailCommand : ComputerCommand
 [Serializable]
 public class EmailMenuCommand : MenuCommand
 {
-    protected List<EmailCommand> emailCommands;
+    public List<EmailCommand> emailCommands;
 
     public EmailMenuCommand()
     {
         commandText = "email";
         messageType = MessageType.EmailMenu;
+        hackable = true;
     }
 
     public void AssignEmails(List<EmailCommand> listOfEmails)
@@ -109,7 +110,7 @@ public class EmailInfo
     public int totalEmails = 0;
     [HideInInspector]
     public int unreadEmails = 0;
-
     public bool hasEmail = false;
     public string emailTitle = "Email for ";
+    public string emailPassword;
 }

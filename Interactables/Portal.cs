@@ -1,21 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Like a door, but changes maps.
 /// </summary>
-public class Portal : IInteractable
+public class Portal : Interactable
 {
-
-    private bool freeze = false;
-    public bool freezePlayer { get { return freeze; } set { freeze = value; } }
-    private bool highlightable = true;
-    public bool highlight { get { return highlightable; } set { highlightable = value; } }
     public string sceneToLoad;
 
-    public void Activate()
+    void Start()
+    {
+        freezePlayer = true;
+    }
+
+    public override void Activate()
     {
         SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
     }

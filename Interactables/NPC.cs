@@ -1,28 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class NPC : MonoBehaviour, IInteractable
+public class NPC : Interactable
 {
-    private bool freeze = true;
-    public bool freezePlayer { get { return freeze; } set { freeze = value; } }
-    private bool highlightable = false;
-    public bool highlight { get { return highlightable; } set { highlightable = value; } }
-
-    GameObject player;
-    Animator anim;
+    private string animTrigger = "Talk";
+    public GameObject player;
+    private Animator anim;
 
 	void Start ()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
+        highlight = false;
+        freezePlayer = true;
         anim = GetComponentInChildren<Animator>();
 	}
 
-    public void Activate()
+    public override void Activate()
     {
         Vector3 newDir = player.transform.position - transform.position;
         newDir.y = 0;
         transform.rotation = Quaternion.LookRotation(newDir);
-        anim.SetTrigger("Talk");
+        anim.SetTrigger(animTrigger);
     }
 }

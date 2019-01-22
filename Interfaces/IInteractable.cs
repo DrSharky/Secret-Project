@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-/// <summary>
+﻿/// <summary>
 /// Any object that the player can interact with 
 /// by pressing the use key.
 /// </summary>
@@ -14,15 +10,8 @@ public interface IInteractable
     void Activate();
 
     /// <summary>
-    /// The boolean to check whether or not using the interactable
-    /// freezes the player.
+    /// The action that should listen for when the activate
+    /// event is triggered.
     /// </summary>
-    bool freezePlayer { get; set; }
-
-    /// <summary>
-    /// The boolean to check whether the interactable
-    /// should be highlighted or not.
-    /// </summary>
-    bool highlight { get; set; }
-
+    System.Action activateListener { get; set; }
 }

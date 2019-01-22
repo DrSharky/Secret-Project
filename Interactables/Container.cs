@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 //TODO: Edit Container class to check for when the player stops using the container.
 //This is why the MonoBehaviour class is included in inheritance here.
@@ -8,13 +6,8 @@ using UnityEngine;
 /// <summary>
 /// Class to define any object that acts as storage for items.
 /// </summary>
-public class Container : MonoBehaviour, IInteractable
+public class Container : Interactable
 {
-    private bool freeze = true;
-    public bool freezePlayer { get { return freeze; } set { freeze = value; } }
-    private bool highlightable = true;
-    public bool highlight { get { return highlightable; } set { highlightable = value; } }
-
     [SerializeField]
     private Animator anim;
     [SerializeField]
@@ -24,7 +17,12 @@ public class Container : MonoBehaviour, IInteractable
     [SerializeField]
     private AudioClip closeClip;
 
-    public void Activate()
+    void Start()
+    {
+        freezePlayer = true;
+    }
+
+    public override void Activate()
     {
         if (anim.GetCurrentAnimatorStateInfo(0).IsName("Open"))
         {

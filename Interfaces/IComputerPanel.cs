@@ -8,7 +8,7 @@ public interface IComputerPanel
     void Start();
     void ActivatePanel();
     void DeactivatePanel();
-    System.Action ExitScreenListener { get; set; }
+    System.Action<bool> ExitScreenListener { get; set; }
     void OnDestroy();
 }
 

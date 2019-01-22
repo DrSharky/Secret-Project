@@ -1,16 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Any kind of door that doesn't change maps.
 /// </summary>
-public class Door : MonoBehaviour, IInteractable
+public class Door : Interactable
 {
-    private bool freeze = false;
-    public bool freezePlayer { get { return freeze; } set { freeze = value; } }
-    private bool highlightable = false;
-    public bool highlight { get { return highlightable; } set { highlightable = value; } }
 
     public AudioClip openSound;
     public AudioClip closeSound;
@@ -29,10 +23,11 @@ public class Door : MonoBehaviour, IInteractable
     private Vector3 openPos;
     private Vector3 closedPos;
     private Vector3 targetDir;
-    
-	// Use this for initialization
-	void Start ()
+
+    // Use this for initialization
+    void Start ()
     {
+        highlight = false;
         doorAudio.clip = openSound;
         openRot = transform.rotation * Quaternion.Euler(0.0f, 90.0f, 0.0f);
         closedRot = transform.rotation;
@@ -73,7 +68,7 @@ public class Door : MonoBehaviour, IInteractable
         }
     }
 
-    public void Activate()
+    public override void Activate()
     {
         if (doorClosed && !opening)
         {
