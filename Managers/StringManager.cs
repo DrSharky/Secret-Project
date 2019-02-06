@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 
-
+//OBSOLETE. Reducing singletons.
 public class StringManager : ScriptableObject
 {
     private const string path = "Assets/Scriptable Objects/StringManager.asset";
+
 
     private static StringManager stringManager;
 
@@ -86,4 +87,5 @@ public class StringManager : ScriptableObject
     public const string rightBr = "]";
     public const string period = ".";
     #endregion
+
 }

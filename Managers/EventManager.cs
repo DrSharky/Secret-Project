@@ -34,7 +34,8 @@ public class EventManager : ScriptableObject
         {
             if (!eventManager)
             {
-                eventManager = CreateInstance<EventManager>();
+                //eventManager = CreateInstance<EventManager>();
+                eventManager = (EventManager)CreateInstance(typeof(EventManager));
 
                 if (!eventManager)
                     Debug.LogError("Error creating EventManager SO!");

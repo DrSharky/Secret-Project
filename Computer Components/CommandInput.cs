@@ -17,6 +17,8 @@ public class CommandInput : MonoBehaviour
     private TMPro.TMP_InputField tmInputField;
     #endregion
 
+    public CommonCompStrings commonStrings;
+
     [SerializeField]
     private GameObject caretObject;
     private TMPro.TMP_Text caretText;
@@ -51,8 +53,8 @@ public class CommandInput : MonoBehaviour
         toggleListener = new System.Action(() => ToggleCanvas());
         EventManager.StartListening("Toggle" + commandCanvas.name, toggleListener);
 
-        commandConfig.headerString = StringManager.commandHeaderText;
-        passConfig.headerString = StringManager.passHeaderText;
+        commandConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.CmdHeader];
+        passConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.PassHeader];
     }
 
     void CommandSetup(CommandConfig config)
@@ -67,7 +69,7 @@ public class CommandInput : MonoBehaviour
         //InputField
         //Set position and reset text.
         inputFieldRectTransform.anchoredPosition = config.inputPos;
-        tmInputField.text = StringManager.emptyString;
+        tmInputField.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
 
         caretScript.originPos = config.caretPos;
     }
@@ -90,6 +92,7 @@ public class CommandInput : MonoBehaviour
                 break;
             //case 3 for display text setup.
             case ScreenType.DisplayText:
+                commandCanvas.alpha = 0;
                 break;
             //case 4 for email text.
             case ScreenType.Email:

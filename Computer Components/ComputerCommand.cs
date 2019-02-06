@@ -32,7 +32,7 @@ public class MenuCommand : ComputerCommand
     public string menuTitle;
     public string menuSubtitle;
 
-    [HideInInspector]
+    [TextArea]
     public string commandsDisplayText;
 
     public string menuPanelTitle;
@@ -98,7 +98,8 @@ public enum MessageType
     Quest,
     Menu,
     EmailMenu,
-    Misc
+    Misc,
+    Warning
 }
 
 //Class to store some email info.

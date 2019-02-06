@@ -3,13 +3,12 @@
 public class NPC : Interactable
 {
     private string animTrigger = "Talk";
+    public AudioClip[] dialogues;
     public GameObject player;
     private Animator anim;
 
 	void Start ()
     {
-        highlight = false;
-        freezePlayer = true;
         anim = GetComponentInChildren<Animator>();
 	}
 

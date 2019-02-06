@@ -28,6 +28,7 @@ public class Door : Interactable
     void Start ()
     {
         highlight = false;
+        doorAudio = GetComponent<AudioSource>();
         doorAudio.clip = openSound;
         openRot = transform.rotation * Quaternion.Euler(0.0f, 90.0f, 0.0f);
         closedRot = transform.rotation;
