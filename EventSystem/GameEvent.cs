@@ -10,11 +10,11 @@ public class GameEvent : ScriptableObject
     public int sentInt;
     public float sentFloat;
     public bool sentBool;
+    
+    protected List<EventListener> eventListeners = new List<EventListener>();
 
-    private List<EventListener> eventListeners = new List<EventListener>();
 
-
-    public void Raise()
+    public virtual void Raise()
     {
         for (int i = eventListeners.Count - 1; i >= 0; i--)
         {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -66,7 +67,7 @@ public class EventAndResponse
     public ResponseWithFloat responseForSentFloat;
     public ResponseWithBool responseForSentBool;
 
-    public void EventRaised()
+    public virtual void EventRaised()
     {
         // default/generic
         if (response.GetPersistentEventCount() >= 1) // always check if at least 1 object is listening for the event
@@ -97,7 +98,6 @@ public class EventAndResponse
         {
             responseForSentBool.Invoke(gameEvent.sentBool);
         }
-
     }
 }
 

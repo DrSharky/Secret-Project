@@ -9,18 +9,28 @@ public class ScreenSaver : MonoBehaviour
     private GameObject screenSaverWhite;
     private RectTransform rectTransform;
 
+    //create instance of the coroutine so it can be stopped & started again.
+    private IEnumerator saverCoroutine;
+
     private void Awake()
     {
         screenSaverBlack = transform.GetChild(0).gameObject;
         screenSaverWhite = transform.GetChild(1).gameObject;
         rectTransform = GetComponent<RectTransform>();
+        saverCoroutine = MoveScreenSaver();
     }
 
-    // Use this for initialization
-    void Start()
-	{
-        StartCoroutine(MoveScreenSaver());
-	}
+    //Start the coroutine when the canvas is enabled, instead of Start.
+    void OnEnable()
+    {
+        StartCoroutine(saverCoroutine);
+    }
+
+    //Stop the coroutine when the canvas is disabled.
+    void OnDisable()
+    {
+        StopCoroutine(saverCoroutine);
+    }
 
     IEnumerator MoveScreenSaver()
     {
@@ -42,6 +52,7 @@ public class ScreenSaver : MonoBehaviour
         }
     }
 
+    //May need to adjust screen sizes to variables to accommodate for other computer screens.
     void RandomScreenPosition()
     {
         int widthLimit = ((int)-(rectTransform.rect.width / 2) - 140);

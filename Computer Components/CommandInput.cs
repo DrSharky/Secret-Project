@@ -31,7 +31,7 @@ public class CommandInput : MonoBehaviour
 
     private CanvasGroup commandCanvas;
 
-    private System.Action<ScreenType> activateListener;
+    private System.Action<ComputerGameEvent.ScreenType> activateListener;
     private System.Action toggleListener;
 
     void Awake()
@@ -47,7 +47,7 @@ public class CommandInput : MonoBehaviour
         caretText = caretObject.GetComponent<TMPro.TMP_Text>();
         caretScript = caretObject.GetComponent<Caret>();
 
-        activateListener = new System.Action<ScreenType>((state) => SwitchState(state));
+        activateListener = new System.Action<ComputerGameEvent.ScreenType>((state) => SwitchState(state));
         EventManager.StartListening("State" + commandCanvas.name, activateListener);
 
         toggleListener = new System.Action(() => ToggleCanvas());
@@ -75,7 +75,7 @@ public class CommandInput : MonoBehaviour
     }
 
     //TODO: Write logic for remaining possible state changes.
-    void SwitchState(ScreenType state)
+    public void SwitchState(ComputerGameEvent.ScreenType state)
     {
         if (commandCanvas.alpha == 0)
             commandCanvas.alpha = 1;
@@ -83,23 +83,23 @@ public class CommandInput : MonoBehaviour
         switch (state)
         {
             //case 1 for normal command input.
-            case ScreenType.Normal:
+            case ComputerGameEvent.ScreenType.Normal:
                 CommandSetup(commandConfig);
                 break;
             //case 2 for password input.
-            case ScreenType.Password:
+            case ComputerGameEvent.ScreenType.Password:
                 CommandSetup(passConfig);
                 break;
             //case 3 for display text setup.
-            case ScreenType.DisplayText:
+            case ComputerGameEvent.ScreenType.DisplayText:
                 commandCanvas.alpha = 0;
                 break;
             //case 4 for email text.
-            case ScreenType.Email:
-            case ScreenType.EmailMenu:
+            case ComputerGameEvent.ScreenType.Email:
+            case ComputerGameEvent.ScreenType.EmailMenu:
                 break;
             //Leave case for password fail blank, it shouldn't change anything.
-            case ScreenType.PasswordFail:
+            case ComputerGameEvent.ScreenType.PasswordFail:
                 break;
             //default for hiding the display.
             default:

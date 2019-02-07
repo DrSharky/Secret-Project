@@ -19,14 +19,20 @@ public class Computer : Interactable
 {
     #region Variables
 
+    #region Common Scriptable Objects
+    [Header("Common Computer SOs")]
     public CommonCompStrings commonStrings;
+    public CommonCompCommands commands;
+    #endregion
 
     #region Menus, Commands, Emails
+    [Header("Specific Computer SOs")]
 
     //List of possible commands at the home menu.
     //Defined in the inspector (SO) depending on which computer.
-    [SerializeField]
-    private CommonCompCommands commands;
+    //May have other commands at home menu other than default commands,
+    //so I'm leaving this field in here to be defined later if that happens.
+    //public HomeCommands homeCommands;
 
     //List of possible menus.
     //Defined in the inspector (SO) depending on which computer.
@@ -40,11 +46,10 @@ public class Computer : Interactable
     private EmailMenuCommand emailCommand;
     #endregion
 
-    #region Panel GameObjects
-    [Header("Panels")]
-    //public GameObject titlePanel;
-    public GameObject emailPanel;
-    #endregion
+    //#region Panel GameObjects
+    //[Header("Panels")]
+    //public GameObject emailPanel;
+    //#endregion
 
     #region Text Components
     [Header("Text Components")]
@@ -90,41 +95,13 @@ public class Computer : Interactable
     #endregion
 
     #region Command Fields
-    //Always have a home command.
-    private MenuCommand homeCommand;
-    //Always have a quit command.
-    private ComputerCommand quitCommand;
-    //Always have a help command.
-    private ComputerCommand helpCommand;
     //Variable to store the current menu.
     private MenuCommand currentCommandMenu;
-    #endregion
-
-    #region Home Header Strings
-    [Header("Home Header Strings")]
-    //Set the home command's title & subtitle in the inspector.
-    public string homeCommandTitle;
-    public string homeCommandSubtitle;
-    #endregion
-
-    #region Screen Saver Fields
-    [Header("Screen Saver Fields")]
-    //Screen Saver objects and time boolean.
-    [SerializeField]
-    private GameObject ScreenSaverCanvas;
-    //[SerializeField]
-    //private GameObject ScreenSaverBlack;
-    //[SerializeField]
-    //private GameObject ScreenSaverWhite;
-    //private bool moveSaverTime = true;
-    //private WaitForSeconds screenSaverDelay = new WaitForSeconds(2.0f);
-    //private Vector2 screenSaverPos = new Vector2();
     #endregion
 
     #region Rect Transforms
     //Need this to determine width & height of screen.
     private RectTransform rectTransform;
-    //private RectTransform screenSaverTransform;
     #endregion
 
     #region Email Info
@@ -148,16 +125,12 @@ public class Computer : Interactable
     [Header("Audio Components")]
     //Audio source for the computer.
     //Default clip is accessSound.
+    public ComputerSounds computerSounds;
     public AudioSource computerAudioSource;
 
-    public AudioClip acceptSound;
-    public AudioClip accessSound;
-    public AudioClip errorSound;
-    public AudioClip typingSound;
     #endregion
 
-    #region Other Variables
-
+    #region Other Components
     //Boolean to tell other things if the player is using the computer currently.
     public static bool usingComputer = false;
     private bool errorDisplay = false;
@@ -165,10 +138,19 @@ public class Computer : Interactable
 
     private ScreenType currentScreenType = ScreenType.Normal;
 
+    [Header("Other Variables")]
     public RawImage numberText;
     public Text subjectText;
 
-    private Canvas mainCanvas;
+    #endregion
+
+    #region Game Events
+    [Header("Game Events")]
+    public ComputerGameEvent activate;
+    public ComputerGameEvent deactivate;
+    public ComputerGameEvent menuScreen;
+    public ComputerGameEvent displayScreen;
+
     #endregion
 
     //#region EventNames
@@ -183,12 +165,6 @@ public class Computer : Interactable
 
     #region MonoBehaviour Methods
 
-     public override void Awake()
-    {
-        base.Awake();
-        mainCanvas = GetComponent<Canvas>();
-    }
-
     void Start()
 	{
         //Assign event string variables;
@@ -201,15 +177,10 @@ public class Computer : Interactable
 
         //Assign these so we don't need to access them indirectly later.
         cmdCaretObject = cmdCaret.gameObject;
-        //passCaretObject = passCaret.gameObject;
 
         //Use this to get the width & height of screen.
         //Needed for the screen saver routine.
         rectTransform = gameObject.GetComponent<RectTransform>();
-
-        //Use this to get the width & height of the screen saver
-        //text so when picking a random position, it doesn't overlap the edges.
-        //screenSaverTransform = ScreenSaverText.GetComponent<RectTransform>();
 
         //Computer panel structure will always be the same, so the direct index
         //references with 4 & 5 are fine.
@@ -279,11 +250,6 @@ public class Computer : Interactable
 
     void Update()
 	{
-        //If the screen saver routine has counted to 2,
-        //run it so that it will move.
-        //if (moveSaverTime)
-        //    StartCoroutine(MoveScreenSaver());
-
         if (usingComputer)
         {
             //If the user presses Esc & is using the computer,
@@ -347,15 +313,15 @@ public class Computer : Interactable
     //User activated the computer by interacting with it.
     public override void Activate()
     {
-        mainCanvas.enabled = true;
-        titleCanvas.alpha = 1;
-        menuCanvas.alpha = 1;
-        EventManager.TriggerEvent("Activate" + commandCanvas.name, ScreenType.Normal);
-        //Play access sound when activated.
-        computerAudioSource.PlayOneShot(accessSound);
+        //Raise activate game event (SO).
+        activate.Raise();
 
-        //Turns off the screen saver text.
-        ScreenSaverCanvas.SetActive(false);
+        //mainCanvas.enabled = true;
+        //titleCanvas.alpha = 1;
+        //menuCanvas.alpha = 1;
+        //EventManager.TriggerEvent("Activate" + commandCanvas.name, ScreenType.Normal);
+        //Play access sound when activated.
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Access]);
 
         //EventManager.TriggerEvent(titleEventString, true);
         cmdCaretObject.SetActive(true);
@@ -378,11 +344,12 @@ public class Computer : Interactable
     //User has exited the computer.
     void ExitScreen()
     {
+        //Raise deactivate game event (SO).
+        deactivate.Raise();
+
         ResetCommandText();
         ResetPasswordText();
 
-        //Set the screen saver to be active again.
-        ScreenSaverCanvas.SetActive(true);
         //EventManager.TriggerEvent(exitEventString);
         cmdCaret.gameObject.SetActive(false);
 
@@ -397,7 +364,7 @@ public class Computer : Interactable
         usingComputer = false;
 
         RigidbodyFirstPersonController.frozen = false;
-        titleCanvas.alpha = 0;
+        //titleCanvas.alpha = 0;
         menuCanvas.alpha = 0;
         commandCanvas.alpha = 0;
         //EventManager.TriggerEvent("Toggle" + commandCanvas.name);
@@ -410,7 +377,7 @@ public class Computer : Interactable
         //Password accepted.
         if (enteredPassword == currentCommandMenu.password)
         {
-            computerAudioSource.PlayOneShot(acceptSound);
+            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
@@ -438,7 +405,7 @@ public class Computer : Interactable
         else
         {
             titleText.text = commonStrings.passDict[CommonCompStrings.Password.Fail];
-            computerAudioSource.PlayOneShot(errorSound);
+            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
             //EventManager.TriggerEvent(passEventString, false);
             //EventManager.TriggerEvent(displayEventString, true);
@@ -512,7 +479,7 @@ public class Computer : Interactable
                     }
                 }
                 ShowMenu(enteredMenu);
-                computerAudioSource.PlayOneShot(acceptSound);
+                computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
             }
             //if user entered "list" command
             else if (commandString.Equals(commonStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
@@ -522,7 +489,7 @@ public class Computer : Interactable
             //else the user entered an invalid command.
             else
             {
-                computerAudioSource.PlayOneShot(errorSound);
+                computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
                 ShowErrorText();
             }
         }
@@ -580,7 +547,7 @@ public class Computer : Interactable
             menuCanvas.alpha = 0;
         mainText.text = null;
 
-        computerAudioSource.PlayOneShot(errorSound);
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
         //Set title text to "Password required" & subtitle text to nothing.
         titleText.text = commonStrings.passDict[CommonCompStrings.Password.Required];
@@ -601,7 +568,7 @@ public class Computer : Interactable
     {
         isHacking = true;
         cmdCaret.gameObject.SetActive(false);
-        computerAudioSource.PlayOneShot(typingSound);
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Typing]);
         int passwordLength = currentCommandMenu.password.Length;
         StartCoroutine(GetRandPassword(passwordLength));
     }
@@ -779,8 +746,8 @@ public class Computer : Interactable
         RectTransform numberRect = numberText.GetComponent<RectTransform>();
         RectTransform subjectRect = subjectText.GetComponent<RectTransform>();
 
-        Vector3 emailListPos = emailPanel.transform.position;
-        Quaternion emailListRot = emailPanel.transform.rotation;
+        //Vector3 emailListPos = emailPanel.transform.position;
+        //Quaternion emailListRot = emailPanel.transform.rotation;
         
 
         for (int i = 0; i < emailCommand.emailCommands.Count; i++)
@@ -794,28 +761,28 @@ public class Computer : Interactable
 
             if (i > 0)
             {
-                emailNum = Instantiate(numberText, emailPanel.transform);
-                emailNum.rectTransform.anchoredPosition += new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
-                emailSub = Instantiate(subjectText,emailPanel.transform);
-                emailSub.rectTransform.anchoredPosition += new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
+                //emailNum = Instantiate(numberText, emailPanel.transform);
+                //emailNum.rectTransform.anchoredPosition += new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
+                //emailSub = Instantiate(subjectText,emailPanel.transform);
+                //emailSub.rectTransform.anchoredPosition += new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
             }
             else
             {
                 emailCommand.emailCommands[i].read = true;
-                emailNum = Instantiate(numberText, emailPanel.transform);
-                emailSub = Instantiate(subjectText, emailPanel.transform);
+                //emailNum = Instantiate(numberText, emailPanel.transform);
+                //emailSub = Instantiate(subjectText, emailPanel.transform);
             }
 
-            emailNumText = emailNum.transform.GetComponentInChildren<Text>();
-            emailNumText.text = emailIndex;
+            //emailNumText = emailNum.transform.GetComponentInChildren<Text>();
+            //emailNumText.text = emailIndex;
 
             if (!emailCommand.emailCommands[i].read)
             {
-                emailNum.color = Color.white;
-                emailNumText.color = Color.black;
+                //emailNum.color = Color.white;
+                //emailNumText.color = Color.black;
             }
         }
-        emailPanel.SetActive(false);
+        //emailPanel.SetActive(false);
     }
 }
 
