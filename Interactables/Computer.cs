@@ -41,7 +41,7 @@ public class Computer : Interactable
 
     //List of the emails for the computer. (SO)
     [SerializeField]
-    private EmailCommandList emails;
+    private EmailCommandList emailInfo;
 
     private EmailMenuCommand emailCommand;
     #endregion
@@ -104,13 +104,6 @@ public class Computer : Interactable
     private RectTransform rectTransform;
     #endregion
 
-    #region Email Info
-    [Header("Email Info")]
-    //We need one of these, of course.
-    [SerializeField]
-    private EmailInfo emailInfo;
-    #endregion
-
     #region Carets
     [Header("Carets")]
     [SerializeField]
@@ -133,10 +126,10 @@ public class Computer : Interactable
     #region Other Components
     //Boolean to tell other things if the player is using the computer currently.
     public static bool usingComputer = false;
-    private bool errorDisplay = false;
+    private bool displayText = false;
     private bool isHacking = false;
 
-    private ScreenType currentScreenType = ScreenType.Normal;
+    private ScreenType currentScreenType = ScreenType.Menu;
 
     [Header("Other Variables")]
     public RawImage numberText;
@@ -146,10 +139,11 @@ public class Computer : Interactable
 
     #region Game Events
     [Header("Game Events")]
-    public ComputerGameEvent activate;
-    public ComputerGameEvent deactivate;
-    public ComputerGameEvent menuScreen;
-    public ComputerGameEvent displayScreen;
+    public GameEvent activate;
+    public GameEvent deactivate;
+    public GameEvent menuScreen;
+    public GameEvent displayScreen;
+    public GameEvent passwordScreen;
 
     #endregion
 
@@ -212,9 +206,9 @@ public class Computer : Interactable
             //menus.Commands.Insert(0, emailCommand);
 
             //Populate the email list.
-            emailCommand.AssignEmails(emails.Commands);
+            emailCommand.AssignEmails(emailInfo.Commands);
             //Set the email menu password.
-            emailCommand.password = emailInfo.emailPassword;
+            emailCommand.password = emailInfo.password;
 
             //Home menu should always be after the email menu, if email menu exists.
             //menus.Commands.Insert(1, homeCommand);
@@ -272,7 +266,7 @@ public class Computer : Interactable
                     case ScreenType.Email:
                         ShowEmailMenu();
                         break;
-                    case ScreenType.Normal:
+                    case ScreenType.Menu:
                         ExitScreen();
                         break;
                 }
@@ -364,10 +358,6 @@ public class Computer : Interactable
         usingComputer = false;
 
         RigidbodyFirstPersonController.frozen = false;
-        //titleCanvas.alpha = 0;
-        menuCanvas.alpha = 0;
-        commandCanvas.alpha = 0;
-        //EventManager.TriggerEvent("Toggle" + commandCanvas.name);
     }
     #endregion
 
@@ -422,23 +412,23 @@ public class Computer : Interactable
         ComputerCommand enteredCommand;
         string commandString = commandText.text;
 
-        //If user is on a display page (using errorDisplay bool, should rename).
-        if(errorDisplay)
+        //If user is on a display page
+        if(displayText)
         {
-            //If the user presses enter on the error display page.
+            //If the user presses enter on the display page.
             if (Input.GetKey(KeyCode.Return))
             {
                 commandString = currentCommandMenu.commandText;
                 ResetCommandText();
                 SelectCommandText();
-                errorDisplay = false;
+                displayText = false;
             }
         }
 
         if(commandString == commonStrings.cmdDict[CommonCompStrings.Command.Quit])
         { ExitScreen(); return; }
         if(commandString == commonStrings.cmdDict[CommonCompStrings.Command.Help])
-        { ShowErrorText(); ResetCommandText(); SelectCommandText(); return; }
+        { ShowHelpText(); ResetCommandText(); SelectCommandText(); return; }
 
         enteredCommand = currentCommandMenu.subCommands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
         if (enteredCommand != null)
@@ -454,7 +444,7 @@ public class Computer : Interactable
             
 
             commandText.interactable = false;
-            errorDisplay = true;
+            displayText = true;
             return;
         }
         else
@@ -504,7 +494,7 @@ public class Computer : Interactable
     {
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
         currentScreenType = ScreenType.EmailMenu;
-        titleText.text = emailInfo.emailTitle;
+        //titleText.text = commonStrings.emailDict[CommonCompStrings.Email.Prefix] + ;
         //TODO: convert to email canvas change.
         //EventManager.TriggerEvent(emailEventString, true);
 
@@ -530,11 +520,9 @@ public class Computer : Interactable
         menuListText.text = currentCommandMenu.displayText;
         commandListText.text = currentCommandMenu.commandsDisplayText;
         //EventManager.TriggerEvent(displayEventString, false);
-        displayTextCanvas.alpha = 0;
-        if (menuCanvas.alpha == 0)
-            menuCanvas.alpha = 1;
         //EventManager.TriggerEvent(menuEventString, true);
-        currentScreenType = ScreenType.Normal;
+        currentScreenType = ScreenType.Menu;
+        menuScreen.Raise();
     }
     #endregion
 
@@ -620,7 +608,21 @@ public class Computer : Interactable
         displayTextCanvas.alpha = 1;
         titleText.text = commonStrings.errorDict[CommonCompStrings.Error.Title];
         subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
-        errorDisplay = true;
+        displayText = true;
+    }
+
+    private void ShowHelpText()
+    {
+
+        //TODO: NOT YET IMPLEMENTED - There's a difference between help & error text (invalid command screen).
+        
+        //Play error sound when error text is displayed.
+        //mainText.text = commonStrings.helpDict[CommonCompStrings.Error.Text];
+        ////EventManager.TriggerEvent(displayEventString, true);
+        //displayTextCanvas.alpha = 1;
+        //titleText.text = commonStrings.helpDict[CommonCompStrings.Error.Title];
+        //subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
+        //displayText = true;
     }
 
     //Change the title based on what menu the user is on.
@@ -633,11 +635,8 @@ public class Computer : Interactable
 
     void ChangeEmailTitleText()
     {
-        emailTitleText.text = commonStrings.emailDict[CommonCompStrings.Email.TitleYou] +
-            emailInfo.totalEmails +
-            commonStrings.emailDict[CommonCompStrings.Email.TitleNum] +
-            emailInfo.unreadEmails +
-            commonStrings.emailDict[CommonCompStrings.Email.TitleUnread];
+        emailTitleText.text = commonStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
+            commonStrings.emailDict[CommonCompStrings.Email.TitleNum] + emailInfo.GetUnreadCount() + commonStrings.emailDict[CommonCompStrings.Email.TitleUnread];
     }
 
     //Uses char array for best performance.
@@ -791,10 +790,13 @@ public class Computer : Interactable
 public enum ScreenType
 {
     None,
-    Normal,
+    Menu,
     Password,
     PasswordFail,
+    PasswordSucceed,
     Email,
     EmailMenu,
-    DisplayText
+    DisplayText,
+    Error,
+    Help
 }

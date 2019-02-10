@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
-//using SubjectNerd.Utilities;
 
 public class EventListener : MonoBehaviour
 {
-    //[Reorderable]
+    [Sirenix.OdinInspector.ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "name")]
     public List<EventAndResponse> eventAndResponses = new List<EventAndResponse>();
 
     private void OnEnable()
     {
-
         if (eventAndResponses.Count >= 1)
         {
             foreach (EventAndResponse eAndR in eventAndResponses)
@@ -21,7 +19,6 @@ public class EventListener : MonoBehaviour
                 eAndR.gameEvent.Register(this);
             }
         }
-
 
     }
     private void OnDisable()
@@ -38,7 +35,6 @@ public class EventListener : MonoBehaviour
     [ContextMenu("Raise Events")]
     public void OnEventRaised(GameEvent passedEvent)
     {
-
         for (int i = eventAndResponses.Count - 1; i >= 0; i--)
         {
             // Check if the passed event is the correct one
@@ -51,7 +47,6 @@ public class EventListener : MonoBehaviour
                 eventAndResponses[i].EventRaised();
             }
         }
-
     }
 }
 
@@ -66,6 +61,7 @@ public class EventAndResponse
     public ResponseWithInt responseForSentInt;
     public ResponseWithFloat responseForSentFloat;
     public ResponseWithBool responseForSentBool;
+    public ResponseWithScreenType responseForScreenType;
 
     public virtual void EventRaised()
     {
@@ -101,22 +97,27 @@ public class EventAndResponse
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class ResponseWithString : UnityEvent<string>
 {
 }
 
-[System.Serializable]
+[Serializable]
 public class ResponseWithInt : UnityEvent<int>
 {
 }
 
-[System.Serializable]
+[Serializable]
 public class ResponseWithFloat : UnityEvent<float>
 {
 }
 
-[System.Serializable]
+[Serializable]
 public class ResponseWithBool : UnityEvent<bool>
+{
+}
+
+[Serializable]
+public class ResponseWithScreenType : UnityEvent<ScreenType>
 {
 }

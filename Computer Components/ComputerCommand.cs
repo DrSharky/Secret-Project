@@ -60,7 +60,6 @@ public class MenuCommand : ComputerCommand
 [Serializable]
 public class EmailCommand : ComputerCommand
 {
-    [HideInInspector]
     public bool read;
 
     protected bool questRelated;
@@ -104,14 +103,14 @@ public enum MessageType
 
 //Class to store some email info.
 //Might expand this into another class & file later.
-[Serializable]
-public class EmailInfo
-{
-    [HideInInspector]
-    public int totalEmails = 0;
-    [HideInInspector]
-    public int unreadEmails = 0;
-    public bool hasEmail = false;
-    public string emailTitle = "Email for ";
-    public string emailPassword;
-}
+//[Serializable]
+//public class EmailInfo
+//{
+//    [HideInInspector]
+//    public int totalEmails = 0;
+//    [HideInInspector]
+//    public int unreadEmails = 0;
+//    public bool hasEmail = false;
+//    public string emailPassword;
+//    public string accountName;
+//}

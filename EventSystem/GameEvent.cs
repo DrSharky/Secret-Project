@@ -10,6 +10,7 @@ public class GameEvent : ScriptableObject
     public int sentInt;
     public float sentFloat;
     public bool sentBool;
+    public ScreenType sentScreenType;
     
     protected List<EventListener> eventListeners = new List<EventListener>();
 

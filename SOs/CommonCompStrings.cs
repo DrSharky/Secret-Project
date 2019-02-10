@@ -7,6 +7,12 @@ public class CommonCompStrings : SerializedScriptableObject
 {
     #region Enums
 
+    public enum Help
+    {
+        Text,
+        Title
+    }
+
     public enum Error
     {
         Text,
@@ -65,16 +71,24 @@ public class CommonCompStrings : SerializedScriptableObject
     #endregion
 
     #region Dictionaries
+
     [HideInInspector]
     public Dictionary<Error, string> errorDict = new Dictionary<Error, string>
     {
-        { Error.Text,
+        {Error.Text, "Type \"list\" to get the available commands \n Type \"help\" for assistance." },
+        {Error.Title, "Invalid command: " }
+    };
+
+    [HideInInspector]
+    public Dictionary<Help, string> helpDict = new Dictionary<Help, string>
+    {
+        { Help.Text,
             "Type \"list\" to get the available menus and commands.\n" +
             "Menu names are listed in brackets.Type the name of a menu to switch to that menu.\n" +
             "Command names are listed after menu names.Type the name of a command to run that command.\n" +
             "Different menus have different available commands."
         },
-        { Error.Title, "Help information" }
+        { Help.Title, "Help information" }
     };
     [HideInInspector]
     public Dictionary<Misc, string> miscDict = new Dictionary<Misc, string>
@@ -114,7 +128,7 @@ public class CommonCompStrings : SerializedScriptableObject
     {
         { Password.Required, "Password required" },
         { Password.Success, "Password Succeeded" },
-        { Password.Fail, "Password Failed" },
+        { Password.Fail, "PASSWORD FAILED" },
         { Password.Accepted, "Password accepted: <" },
         { Password.Entering, "Entering " }
     };

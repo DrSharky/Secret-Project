@@ -28,10 +28,12 @@ public class CommandInput : MonoBehaviour
     private CommandConfig commandConfig;
     [SerializeField]
     private CommandConfig passConfig;
+    [SerializeField]
+    private CommandConfig displayConfig;
 
     private CanvasGroup commandCanvas;
 
-    private System.Action<ComputerGameEvent.ScreenType> activateListener;
+    private System.Action<ScreenType> activateListener;
     private System.Action toggleListener;
 
     void Awake()
@@ -47,7 +49,7 @@ public class CommandInput : MonoBehaviour
         caretText = caretObject.GetComponent<TMPro.TMP_Text>();
         caretScript = caretObject.GetComponent<Caret>();
 
-        activateListener = new System.Action<ComputerGameEvent.ScreenType>((state) => SwitchState(state));
+        activateListener = new System.Action<ScreenType>((state) => SwitchState(state));
         EventManager.StartListening("State" + commandCanvas.name, activateListener);
 
         toggleListener = new System.Action(() => ToggleCanvas());
@@ -75,7 +77,7 @@ public class CommandInput : MonoBehaviour
     }
 
     //TODO: Write logic for remaining possible state changes.
-    public void SwitchState(ComputerGameEvent.ScreenType state)
+    public void SwitchState(ScreenType state)
     {
         if (commandCanvas.alpha == 0)
             commandCanvas.alpha = 1;
@@ -83,25 +85,26 @@ public class CommandInput : MonoBehaviour
         switch (state)
         {
             //case 1 for normal command input.
-            case ComputerGameEvent.ScreenType.Normal:
+            case ScreenType.Menu:
                 CommandSetup(commandConfig);
                 break;
             //case 2 for password input.
-            case ComputerGameEvent.ScreenType.Password:
+            case ScreenType.Password:
                 CommandSetup(passConfig);
                 break;
             //case 3 for display text setup.
-            case ComputerGameEvent.ScreenType.DisplayText:
-                commandCanvas.alpha = 0;
+            case ScreenType.DisplayText:
+                CommandSetup(displayConfig);
                 break;
             //case 4 for email text.
-            case ComputerGameEvent.ScreenType.Email:
-            case ComputerGameEvent.ScreenType.EmailMenu:
+            case ScreenType.Email:
+            case ScreenType.EmailMenu:
                 break;
             //Leave case for password fail blank, it shouldn't change anything.
-            case ComputerGameEvent.ScreenType.PasswordFail:
+            case ScreenType.PasswordFail:
                 break;
             //default for hiding the display.
+            case ScreenType.None:
             default:
                 ToggleCanvas();
                 break;
@@ -114,6 +117,5 @@ public class CommandInput : MonoBehaviour
             commandCanvas.alpha = 0;
         else
             commandCanvas.alpha = 1;
-        //commandCanvas.enabled = !commandCanvas.enabled;
     }
 }

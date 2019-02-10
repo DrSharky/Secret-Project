@@ -11,20 +11,20 @@ public class MenuCanvas : MonoBehaviour
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    public void SwitchState(ComputerGameEvent.ScreenType screenType)
+    public void SwitchState(ScreenType screenType)
     {
         switch(screenType)
         {
-            case ComputerGameEvent.ScreenType.DisplayText:
-            case ComputerGameEvent.ScreenType.EmailMenu:
-            case ComputerGameEvent.ScreenType.Email:
-            case ComputerGameEvent.ScreenType.Password:
-            case ComputerGameEvent.ScreenType.PasswordFail:
-            case ComputerGameEvent.ScreenType.None:
+            case ScreenType.DisplayText:
+            case ScreenType.EmailMenu:
+            case ScreenType.Email:
+            case ScreenType.Password:
+            case ScreenType.PasswordFail:
+            case ScreenType.None:
             default:
                 canvasGroup.alpha = 0;
                 break;
-            case ComputerGameEvent.ScreenType.Normal:
+            case ScreenType.Menu:
                 canvasGroup.alpha = 1;
                 break;
 
