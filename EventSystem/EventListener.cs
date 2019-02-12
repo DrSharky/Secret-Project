@@ -94,6 +94,12 @@ public class EventAndResponse
         {
             responseForSentBool.Invoke(gameEvent.sentBool);
         }
+
+        // ScreenType
+        if (responseForScreenType.GetPersistentEventCount() >= 1)
+        {
+            responseForScreenType.Invoke(gameEvent.sentScreenType);
+        }
     }
 }
 

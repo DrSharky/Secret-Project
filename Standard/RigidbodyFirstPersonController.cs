@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityStandardAssets.CrossPlatformInput;
 
 
 [RequireComponent(typeof (Rigidbody))]
@@ -134,7 +133,7 @@ public class RigidbodyFirstPersonController : MonoBehaviour
 
         RotateView();
 
-        if (CrossPlatformInputManager.GetButtonDown("Jump") && !m_Jump)
+        if (Input.GetButtonDown("Jump") && !m_Jump)
         {
             m_Jump = true;
         }
@@ -221,8 +220,8 @@ public class RigidbodyFirstPersonController : MonoBehaviour
             
         Vector2 input = new Vector2
             {
-                x = CrossPlatformInputManager.GetAxis("Horizontal"),
-                y = CrossPlatformInputManager.GetAxis("Vertical")
+                x = Input.GetAxis("Horizontal"),
+                y = Input.GetAxis("Vertical")
             };
 		movementSettings.UpdateDesiredTargetSpeed(input);
         return input;

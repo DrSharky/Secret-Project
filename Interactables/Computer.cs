@@ -437,14 +437,15 @@ public class Computer : Interactable
 
             //EventManager.TriggerEvent(displayEventString, true);
             displayTextCanvas.alpha = 1;
-            menuCanvas.alpha = 0;
+            //menuCanvas.alpha = 0;
 
             currentScreenType = ScreenType.DisplayText;
-            EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
+            //EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
             
 
             commandText.interactable = false;
             displayText = true;
+            displayScreen.Raise();
             return;
         }
         else

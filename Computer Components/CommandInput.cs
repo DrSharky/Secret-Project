@@ -33,9 +33,6 @@ public class CommandInput : MonoBehaviour
 
     private CanvasGroup commandCanvas;
 
-    private System.Action<ScreenType> activateListener;
-    private System.Action toggleListener;
-
     void Awake()
     {
         commandCanvas = GetComponent<CanvasGroup>();
@@ -49,14 +46,9 @@ public class CommandInput : MonoBehaviour
         caretText = caretObject.GetComponent<TMPro.TMP_Text>();
         caretScript = caretObject.GetComponent<Caret>();
 
-        activateListener = new System.Action<ScreenType>((state) => SwitchState(state));
-        EventManager.StartListening("State" + commandCanvas.name, activateListener);
-
-        toggleListener = new System.Action(() => ToggleCanvas());
-        EventManager.StartListening("Toggle" + commandCanvas.name, toggleListener);
-
         commandConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.CmdHeader];
         passConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.PassHeader];
+        displayConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.Continue];
     }
 
     void CommandSetup(CommandConfig config)
@@ -67,6 +59,8 @@ public class CommandInput : MonoBehaviour
         //Set position and text.
         headerRectTransform.anchoredPosition = config.headerPos;
         headerText.text = config.headerString;
+
+        headerText.rectTransform.sizeDelta = config.headerVector;
 
         //InputField
         //Set position and reset text.
@@ -82,6 +76,9 @@ public class CommandInput : MonoBehaviour
         if (commandCanvas.alpha == 0)
             commandCanvas.alpha = 1;
 
+        if (!caretObject.activeInHierarchy)
+            caretObject.SetActive(true);
+
         switch (state)
         {
             //case 1 for normal command input.
@@ -94,6 +91,7 @@ public class CommandInput : MonoBehaviour
                 break;
             //case 3 for display text setup.
             case ScreenType.DisplayText:
+                caretObject.SetActive(false);
                 CommandSetup(displayConfig);
                 break;
             //case 4 for email text.

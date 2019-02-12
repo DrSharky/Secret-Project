@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using UnityStandardAssets.CrossPlatformInput;
+//using UnityStandardAssets.CrossPlatformInput;
 
 [Serializable]
 public class MouseLook
@@ -31,8 +31,8 @@ public class MouseLook
         if (RigidbodyFirstPersonController.frozen)
             return;
 
-        float yRot = CrossPlatformInputManager.GetAxis("Mouse X") * XSensitivity;
-        float xRot = CrossPlatformInputManager.GetAxis("Mouse Y") * YSensitivity;
+        float xRot = Input.GetAxis("Mouse Y") * YSensitivity;
+        float yRot = Input.GetAxis("Mouse X") * XSensitivity;
 
         m_CharacterTargetRot *= Quaternion.Euler (0f, yRot, 0f);
         m_CameraTargetRot *= Quaternion.Euler (-xRot, 0f, 0f);
