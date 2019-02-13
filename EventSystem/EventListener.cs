@@ -127,3 +127,9 @@ public class ResponseWithBool : UnityEvent<bool>
 public class ResponseWithScreenType : UnityEvent<ScreenType>
 {
 }
+
+//Could make responsewith menucommand event...
+//...but that would require making events for every single Menu for every computer...
+//Could assign the sent string for the menuscreen event, but that is exactly the opposite
+// of why you'd use SO game events, since the event won't work without the Computer script...
+//TODO: Further investigation required.

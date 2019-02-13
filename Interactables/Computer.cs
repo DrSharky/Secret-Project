@@ -310,10 +310,6 @@ public class Computer : Interactable
         //Raise activate game event (SO).
         activate.Raise();
 
-        //mainCanvas.enabled = true;
-        //titleCanvas.alpha = 1;
-        //menuCanvas.alpha = 1;
-        //EventManager.TriggerEvent("Activate" + commandCanvas.name, ScreenType.Normal);
         //Play access sound when activated.
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Access]);
 
@@ -435,13 +431,7 @@ public class Computer : Interactable
         {
             mainText.text = enteredCommand.displayText;
 
-            //EventManager.TriggerEvent(displayEventString, true);
-            displayTextCanvas.alpha = 1;
-            //menuCanvas.alpha = 0;
-
-            currentScreenType = ScreenType.DisplayText;
-            //EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
-            
+            currentScreenType = ScreenType.DisplayText;            
 
             commandText.interactable = false;
             displayText = true;
@@ -509,20 +499,12 @@ public class Computer : Interactable
     //Display the correct menu & commands.
     void ShowMenu(MenuCommand openMenu)
     {
-        //if (passCaretObject.activeInHierarchy)
-        //{
-        //    EventManager.TriggerEvent(passEventString, false);
-        //    //passCaretObject.SetActive(false);
-        //    cmdCaretObject.SetActive(true);
-        //}
-
         currentCommandMenu = openMenu;
         SetTitleText();
         menuListText.text = currentCommandMenu.displayText;
         commandListText.text = currentCommandMenu.commandsDisplayText;
-        //EventManager.TriggerEvent(displayEventString, false);
-        //EventManager.TriggerEvent(menuEventString, true);
         currentScreenType = ScreenType.Menu;
+
         menuScreen.Raise();
     }
     #endregion
@@ -532,8 +514,8 @@ public class Computer : Interactable
     {
         currentScreenType = ScreenType.Password;
         EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
-        if (menuCanvas.alpha == 1)
-            menuCanvas.alpha = 0;
+        //if (menuCanvas.alpha == 1)
+        //    menuCanvas.alpha = 0;
         mainText.text = null;
 
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
@@ -542,9 +524,7 @@ public class Computer : Interactable
         titleText.text = commonStrings.passDict[CommonCompStrings.Password.Required];
         subtitleText.text = null;
 
-        //Set the password input panel to appear, & other menu stuff to disappear.
-        //EventManager.TriggerEvent(passEventString, true);
-        //EventManager.TriggerEvent(menuEventString, false);
+        passwordScreen.Raise();
 
         //Reset the command input stuff after entering the hacking menu.
         ResetCommandText();
@@ -605,11 +585,12 @@ public class Computer : Interactable
     {
         //Play error sound when error text is displayed.
         mainText.text = commonStrings.errorDict[CommonCompStrings.Error.Text];
-        //EventManager.TriggerEvent(displayEventString, true);
         displayTextCanvas.alpha = 1;
         titleText.text = commonStrings.errorDict[CommonCompStrings.Error.Title];
         subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
         displayText = true;
+
+        displayScreen.Raise();
     }
 
     private void ShowHelpText()
@@ -629,9 +610,9 @@ public class Computer : Interactable
     //Change the title based on what menu the user is on.
     void SetTitleText()
     {
-        titleText.text = currentCommandMenu.menuTitle;
-        subtitleText.text = currentCommandMenu.menuSubtitle;
-        menuTitleText.text = currentCommandMenu.menuPanelTitle;
+        //titleText.text = currentCommandMenu.menuTitle;
+        //subtitleText.text = currentCommandMenu.menuSubtitle;
+        //menuTitleText.text = currentCommandMenu.menuPanelTitle;
     }
 
     void ChangeEmailTitleText()

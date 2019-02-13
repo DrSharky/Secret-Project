@@ -4,7 +4,18 @@ using UnityEngine;
 
 public class MenuCanvas : MonoBehaviour
 {
+    public MenuCommandList menuCmdList;
+
+    public UnityEngine.UI.Text menuTitleText;
     private CanvasGroup canvasGroup;
+    private string currentMenu;
+
+    public CommonCompStrings commonStrings;
+
+    public void SwitchMenu(string menu)
+    {
+        currentMenu = menu;
+    }
 
     void Start()
     {
@@ -26,6 +37,7 @@ public class MenuCanvas : MonoBehaviour
                 break;
             case ScreenType.Menu:
                 canvasGroup.alpha = 1;
+                menuTitleText.text = currentMenu;
                 break;
 
         }
