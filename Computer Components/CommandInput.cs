@@ -91,6 +91,9 @@ public class CommandInput : MonoBehaviour
                 break;
             //case 3 for display text setup.
             case ScreenType.DisplayText:
+            case ScreenType.PasswordSucceed:
+            case ScreenType.Error:
+            case ScreenType.Help:
                 caretObject.SetActive(false);
                 CommandSetup(displayConfig);
                 break;

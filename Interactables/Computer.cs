@@ -141,17 +141,12 @@ public class Computer : Interactable
     [Header("Game Events")]
     public GameEvent activate;
     public GameEvent deactivate;
-    public GameEvent menuScreen;
     public GameEvent displayScreen;
     public GameEvent passwordScreen;
+    public List<GameEvent> menuScreens;
+    public GameEvent menuEvent;
 
     #endregion
-
-    //#region EventNames
-    //private string titleEventString, passEventString,
-    //               displayEventString, menuEventString,
-    //               emailEventString, exitEventString;
-    //#endregion
 
     #endregion
 
@@ -161,13 +156,6 @@ public class Computer : Interactable
 
     void Start()
 	{
-        //Assign event string variables;
-        //titleEventString = StringManager.titlePanelToggle + gameObject.name;
-        //passEventString = StringManager.passwordPanelToggle + gameObject.name;
-        //displayEventString = StringManager.displayPanelToggle + gameObject.name;
-        //menuEventString = StringManager.menuPanelToggle + gameObject.name;
-        //emailEventString = StringManager.emailPanelToggle + gameObject.name;
-        //exitEventString = StringManager.exitScreenEvent + gameObject.name;
 
         //Assign these so we don't need to access them indirectly later.
         cmdCaretObject = cmdCaret.gameObject;
@@ -176,25 +164,11 @@ public class Computer : Interactable
         //Needed for the screen saver routine.
         rectTransform = gameObject.GetComponent<RectTransform>();
 
-        //Computer panel structure will always be the same, so the direct index
-        //references with 4 & 5 are fine.
-        //titleObjects = titlePanel.GetComponentsInChildren<Text>();
-        //if (titleObjects[4] != null)
-        //    titleText = titleObjects[4];
-        //if (titleObjects[5] != null)
-        //    subtitleText = titleObjects[5];
         titleObjects = titleCanvas.gameObject.GetComponentsInChildren<Text>();
         if (titleObjects[0] != null)
                 titleText = titleObjects[0];
         if (titleObjects[1] != null)
             subtitleText = titleObjects[1];
-
-        //Set up the home menu command variables.
-        //homeCommand = new MenuCommand();
-        //homeCommand.menuTitle = homeCommandTitle;
-        //homeCommand.menuPanelTitle = CapitalizeMenuName(homeCommand.commandText) + commonStrings.miscDict[CommonCompStrings.Misc.MenuTitleSuffix];
-        //homeCommand.menuSubtitle = homeCommandSubtitle;
-        //homeCommand.subCommands = new List<ComputerCommand>(commands.commandDict.Values);
 
         //Insert the email & home commands,
         //if the email comamnd should exist.
@@ -218,7 +192,7 @@ public class Computer : Interactable
             //Set the email text to the correct format.
             ChangeEmailTitleText();
 
-            CreateEmailText();
+            //CreateEmailText();
         }
         else
         {
@@ -227,19 +201,6 @@ public class Computer : Interactable
             //menus.Commands.Insert(0, homeCommand);
             currentCommandMenu = menus.Commands[0];
         }
-
-        //Populate the menu list for the home command menu.
-        //homeCommand.displayText = MenusList(currentCommandMenu);
-
-        //Set the display text for all the menus at start,
-        //instead of running them at activation. This will save memory in the long run.
-        //for(int i = 0; i < menus.Commands.Count; i++)
-        //{
-        //    //If the menu is not email menu, then populate the commands list string
-        //    //from the subcommands of the menu.
-        //    if(!menus.Commands[i].commandText.Equals(commonStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
-        //        menus.Commands[i].commandsDisplayText = CommandsList(menus.Commands[i].subCommands);
-        //}
     }
 
     void Update()
@@ -325,10 +286,10 @@ public class Computer : Interactable
         SelectCommandText();
 
         //Show the home menu on activation.
-        if (emailInfo.hasEmail)
-            ShowMenu(menus.Commands[1]);
-        else
-            ShowMenu(menus.Commands[0]);
+        //if (emailInfo.hasEmail)
+        //    ShowMenu(menus.Commands[1]);
+        //else
+        //    ShowMenu(menus.Commands[0]);
     }
 
     //User has exited the computer.
@@ -500,12 +461,12 @@ public class Computer : Interactable
     void ShowMenu(MenuCommand openMenu)
     {
         currentCommandMenu = openMenu;
-        SetTitleText();
         menuListText.text = currentCommandMenu.displayText;
         commandListText.text = currentCommandMenu.commandsDisplayText;
         currentScreenType = ScreenType.Menu;
 
-        menuScreen.Raise();
+        menuScreens.Find(x => x.sentString == openMenu.commandText).Raise();
+        menuEvent.Raise();
     }
     #endregion
 
@@ -513,16 +474,10 @@ public class Computer : Interactable
     void ShowHacking()
     {
         currentScreenType = ScreenType.Password;
-        EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
-        //if (menuCanvas.alpha == 1)
-        //    menuCanvas.alpha = 0;
+
         mainText.text = null;
 
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
-
-        //Set title text to "Password required" & subtitle text to nothing.
-        titleText.text = commonStrings.passDict[CommonCompStrings.Password.Required];
-        subtitleText.text = null;
 
         passwordScreen.Raise();
 
@@ -605,14 +560,6 @@ public class Computer : Interactable
         //titleText.text = commonStrings.helpDict[CommonCompStrings.Error.Title];
         //subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
         //displayText = true;
-    }
-
-    //Change the title based on what menu the user is on.
-    void SetTitleText()
-    {
-        //titleText.text = currentCommandMenu.menuTitle;
-        //subtitleText.text = currentCommandMenu.menuSubtitle;
-        //menuTitleText.text = currentCommandMenu.menuPanelTitle;
     }
 
     void ChangeEmailTitleText()

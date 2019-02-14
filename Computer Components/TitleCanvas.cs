@@ -70,6 +70,9 @@ public class TitleCanvas : MonoBehaviour
             case ScreenType.Error:
                 titleText.text = commonStrings.errorDict[CommonCompStrings.Error.Title] + errorCmd;
                     break;
+            case ScreenType.None:
+            default:
+                break;
         }
     }
 }

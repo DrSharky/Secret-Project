@@ -8,13 +8,14 @@ public class MenuCanvas : MonoBehaviour
 
     public UnityEngine.UI.Text menuTitleText;
     private CanvasGroup canvasGroup;
-    private string currentMenu;
+    private MenuCommand currentMenu;
 
     public CommonCompStrings commonStrings;
 
     public void SwitchMenu(string menu)
     {
-        currentMenu = menu;
+        currentMenu = menuCmdList.Commands.Find(x => x.commandText == menu);
+        menuTitleText.text = currentMenu.menuPanelTitle;
     }
 
     void Start()
@@ -31,13 +32,15 @@ public class MenuCanvas : MonoBehaviour
             case ScreenType.Email:
             case ScreenType.Password:
             case ScreenType.PasswordFail:
+            case ScreenType.PasswordSucceed:
             case ScreenType.None:
+            case ScreenType.Help:
+            case ScreenType.Error:
             default:
                 canvasGroup.alpha = 0;
                 break;
             case ScreenType.Menu:
                 canvasGroup.alpha = 1;
-                menuTitleText.text = currentMenu;
                 break;
 
         }
