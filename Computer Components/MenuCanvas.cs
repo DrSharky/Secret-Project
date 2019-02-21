@@ -4,18 +4,26 @@ using UnityEngine;
 
 public class MenuCanvas : MonoBehaviour
 {
+
+    public delegate void MenuDelegate(string value);
+    public event MenuDelegate OnMenuSwitch;
+
     public MenuCommandList menuCmdList;
 
     public UnityEngine.UI.Text menuTitleText;
+    public UnityEngine.UI.Text menuListText;
+    public UnityEngine.UI.Text commandListText;
     private CanvasGroup canvasGroup;
     private MenuCommand currentMenu;
 
-    public CommonCompStrings commonStrings;
 
     public void SwitchMenu(string menu)
     {
         currentMenu = menuCmdList.Commands.Find(x => x.commandText == menu);
         menuTitleText.text = currentMenu.menuPanelTitle;
+        menuListText.text = currentMenu.displayText;
+        commandListText.text = currentMenu.commandsDisplayText;
+        OnMenuSwitch(menu);
     }
 
     void Start()

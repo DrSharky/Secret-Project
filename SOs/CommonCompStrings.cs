@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Sirenix.OdinInspector;
+﻿using System.Collections.Generic;
 
-public class CommonCompStrings : SerializedScriptableObject
+public class CommonCompStrings
 {
     #region Enums
 
@@ -72,15 +69,14 @@ public class CommonCompStrings : SerializedScriptableObject
 
     #region Dictionaries
 
-    [HideInInspector]
-    public Dictionary<Error, string> errorDict = new Dictionary<Error, string>
+    
+    public static Dictionary<Error, string> errorDict = new Dictionary<Error, string>
     {
-        {Error.Text, "Type \"list\" to get the available commands \n Type \"help\" for assistance." },
+        {Error.Text, "Type \"list\" to get the available commands \nType \"help\" for assistance." },
         {Error.Title, "Invalid command: " }
     };
 
-    [HideInInspector]
-    public Dictionary<Help, string> helpDict = new Dictionary<Help, string>
+    public static Dictionary<Help, string> helpDict = new Dictionary<Help, string>
     {
         { Help.Text,
             "Type \"list\" to get the available menus and commands.\n" +
@@ -90,14 +86,14 @@ public class CommonCompStrings : SerializedScriptableObject
         },
         { Help.Title, "Help information" }
     };
-    [HideInInspector]
-    public Dictionary<Misc, string> miscDict = new Dictionary<Misc, string>
+
+    public static Dictionary<Misc, string> miscDict = new Dictionary<Misc, string>
     {
         { Misc.MenuTitleSuffix, " menu" },
         { Misc.Alphabet, "abcdefghijklmnopqrstuvwxyz" }
     };
-    [HideInInspector]
-    public Dictionary<Email, string> emailDict = new Dictionary<Email, string>
+
+    public static Dictionary<Email, string> emailDict = new Dictionary<Email, string>
     {
         { Email.Prefix, "Email For " },
         { Email.TitleYou, "You have " },
@@ -105,8 +101,7 @@ public class CommonCompStrings : SerializedScriptableObject
         { Email.TitleUnread, " are unread." }
     };
 
-    [HideInInspector]
-    public Dictionary<Command, string> cmdDict = new Dictionary<Command, string>
+    public static Dictionary<Command, string> cmdDict = new Dictionary<Command, string>
     {
         { Command.List, "list" },
         { Command.Email, "email" },
@@ -115,16 +110,14 @@ public class CommonCompStrings : SerializedScriptableObject
         { Command.Quit, "quit" }
     };
 
-    [HideInInspector]
-    public Dictionary<Input, string> inputDict = new Dictionary<Input, string>
+    public static Dictionary<Input, string> inputDict = new Dictionary<Input, string>
     {
         { Input.PassHeader, "Password : " },
         { Input.CmdHeader, "Type menu or command: " },
         { Input.Continue, "[Press \"ENTER\" to continue]"}
     };
 
-    [HideInInspector]
-    public Dictionary<Password, string> passDict = new Dictionary<Password, string>
+    public static Dictionary<Password, string> passDict = new Dictionary<Password, string>
     {
         { Password.Required, "Password required" },
         { Password.Success, "Password Succeeded" },
@@ -133,8 +126,7 @@ public class CommonCompStrings : SerializedScriptableObject
         { Password.Entering, "Entering " }
     };
 
-    [HideInInspector]
-    public Dictionary<Char, string> charDict = new Dictionary<Char, string>
+    public static Dictionary<Char, string> charDict = new Dictionary<Char, string>
     {
         { Char.NewLine, "\n" },
         { Char.Greater, ">" },

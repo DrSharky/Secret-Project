@@ -8,7 +8,6 @@ public class TitleCanvas : MonoBehaviour
 {
     public Text titleText;
     public Text subtitleText;
-    public CommonCompStrings commonStrings;
     public MenuCommandList menuCmdList;
 
     private CanvasGroup canvasGroup;
@@ -16,15 +15,24 @@ public class TitleCanvas : MonoBehaviour
     private EmailCommandList emailInfo;
     private string errorCmd;
 
+    private delegate void MenuSwitch(ScreenType menu);
+    private event MenuSwitch OnSwitch;
+
     // Use this for initialization
     void Start()
     {
+        //Yeah, yeah, shouldn't do this.
+        //I'm not sure how else to handle this one though.
+        GetComponentInParent<Computer>().OnErrorEnter += ErrorCommand;
+
         canvasGroup = GetComponent<CanvasGroup>();
+        OnSwitch += SwitchState;
     }
 
-    public void SwitchMenu(MenuCommand menu)
+    public void SwitchMenu(string menu)
     {
-        currentMenu = menu;
+        currentMenu = menuCmdList.Commands.Find(x => x.commandText == menu);
+        OnSwitch(ScreenType.Menu);
     }
 
     public void ErrorCommand(string command)
@@ -34,24 +42,31 @@ public class TitleCanvas : MonoBehaviour
 
     private void ResetSubtitle()
     {
-        if (subtitleText.text != commonStrings.charDict[CommonCompStrings.Char.Empty])
-            subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
+        if (subtitleText.text != CommonCompStrings.charDict[CommonCompStrings.Char.Empty])
+            subtitleText.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
     }
+
+
+    //Could edit this to make menu event a special case where it only passes string instead
+    //Title is always showing, so no need to make another case for it.
+    //Same kinda goes for other menu events. Just use the specific menu events,
+    //along with the generic menu event. specific takes care of strings, generic takes care of on/off.
+    //Maybe this would work?
 
     public void SwitchState(ScreenType screenType)
     {
         switch (screenType)
         {
             case ScreenType.Password:
-                titleText.text = commonStrings.passDict[CommonCompStrings.Password.Required];
+                titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Required];
                 ResetSubtitle();
                 break;
             case ScreenType.PasswordFail:
-                titleText.text = commonStrings.passDict[CommonCompStrings.Password.Fail];
+                titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Fail];
                 ResetSubtitle();
                 break;
             case ScreenType.PasswordSucceed:
-                titleText.text = commonStrings.passDict[CommonCompStrings.Password.Success];
+                titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Success];
                 ResetSubtitle();
                 break;
             case ScreenType.Menu:
@@ -61,14 +76,15 @@ public class TitleCanvas : MonoBehaviour
                 break;
             case ScreenType.Email:
             case ScreenType.EmailMenu:
-                titleText.text = commonStrings.emailDict[CommonCompStrings.Email.Prefix] + emailInfo.accountName;
+                titleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.Prefix] + emailInfo.accountName;
                 break;
             case ScreenType.Help:
-                titleText.text = commonStrings.helpDict[CommonCompStrings.Help.Title];
+                titleText.text = CommonCompStrings.helpDict[CommonCompStrings.Help.Title];
                 ResetSubtitle();
                 break;
             case ScreenType.Error:
-                titleText.text = commonStrings.errorDict[CommonCompStrings.Error.Title] + errorCmd;
+                titleText.text = CommonCompStrings.errorDict[CommonCompStrings.Error.Title] + errorCmd;
+                ResetSubtitle();
                     break;
             case ScreenType.None:
             default:

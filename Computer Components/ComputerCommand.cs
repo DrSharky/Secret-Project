@@ -39,7 +39,6 @@ public class MenuCommand : ComputerCommand
 
     public bool hackable;
 
-    [HideInInspector]
     public bool alreadyHacked;
 
     public string password;

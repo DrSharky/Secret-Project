@@ -21,7 +21,6 @@ public class Computer : Interactable
 
     #region Common Scriptable Objects
     [Header("Common Computer SOs")]
-    public CommonCompStrings commonStrings;
     public CommonCompCommands commands;
     #endregion
 
@@ -44,16 +43,13 @@ public class Computer : Interactable
     private EmailCommandList emailInfo;
 
     private EmailMenuCommand emailCommand;
-    #endregion
 
-    //#region Panel GameObjects
-    //[Header("Panels")]
-    //public GameObject emailPanel;
-    //#endregion
+    [SerializeField]
+    private DisplayEventsList displayList;
+    #endregion
 
     #region Text Components
     [Header("Text Components")]
-    public Text menuListText;
     public Text commandListText;
     public Text mainText;
     public Text emailDisplayText;
@@ -142,11 +138,16 @@ public class Computer : Interactable
     public GameEvent activate;
     public GameEvent deactivate;
     public GameEvent displayScreen;
+    public GameEvent helpScreen;
+    public GameEvent errorScreen;
     public GameEvent passwordScreen;
-    public List<GameEvent> menuScreens;
     public GameEvent menuEvent;
+    public List<GameEvent> menuScreens;
 
     #endregion
+
+    public delegate void ErrorDelegate(string errorCmd);
+    public event ErrorDelegate OnErrorEnter;
 
     #endregion
 
@@ -156,7 +157,6 @@ public class Computer : Interactable
 
     void Start()
 	{
-
         //Assign these so we don't need to access them indirectly later.
         cmdCaretObject = cmdCaret.gameObject;
 
@@ -166,7 +166,7 @@ public class Computer : Interactable
 
         titleObjects = titleCanvas.gameObject.GetComponentsInChildren<Text>();
         if (titleObjects[0] != null)
-                titleText = titleObjects[0];
+                //titleText = titleObjects[0];
         if (titleObjects[1] != null)
             subtitleText = titleObjects[1];
 
@@ -230,6 +230,9 @@ public class Computer : Interactable
                     case ScreenType.Menu:
                         ExitScreen();
                         break;
+                    case ScreenType.DisplayText:
+                        ShowMenu(currentCommandMenu);
+                        break;
                 }
             }
             else if (isHacking)
@@ -243,7 +246,7 @@ public class Computer : Interactable
                     else
                     {
                         SelectCommandText();
-                        if(currentCommandMenu.commandText.Equals(commonStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
+                        if(currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
                             ShowEmailMenu();
                         else
                             ShowMenu(currentCommandMenu);
@@ -298,8 +301,8 @@ public class Computer : Interactable
         //Raise deactivate game event (SO).
         deactivate.Raise();
 
-        ResetCommandText();
-        ResetPasswordText();
+        //ResetCommandText();
+        //ResetPasswordText();
 
         //EventManager.TriggerEvent(exitEventString);
         cmdCaret.gameObject.SetActive(false);
@@ -330,34 +333,34 @@ public class Computer : Interactable
             currentCommandMenu.alreadyHacked = true;
 
             //Set the display text panel to show the appropriate message.
-            mainText.text = commonStrings.passDict[CommonCompStrings.Password.Accepted] +
+            mainText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Accepted] +
                             currentCommandMenu.password + 
-                            commonStrings.charDict[CommonCompStrings.Char.Greater] +
-                            commonStrings.charDict[CommonCompStrings.Char.NewLine] +
-                            commonStrings.passDict[CommonCompStrings.Password.Entering] +
+                            CommonCompStrings.charDict[CommonCompStrings.Char.Greater] +
+                            CommonCompStrings.charDict[CommonCompStrings.Char.NewLine] +
+                            CommonCompStrings.passDict[CommonCompStrings.Password.Entering] +
                             currentCommandMenu.commandText +
-                            commonStrings.charDict[CommonCompStrings.Char.Period];
+                            CommonCompStrings.charDict[CommonCompStrings.Char.Period];
             //Set the title text to the appropriate message.
-            titleText.text = commonStrings.passDict[CommonCompStrings.Password.Success];
+            //titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Success];
 
             //Hide the password input, need to show the Press Enter prompt after password succeeds.
             //The command input sets to proper display text when the display panel is toggled to true.
             //EventManager.TriggerEvent(passEventString, false);
             //EventManager.TriggerEvent(displayEventString, true);
-            displayTextCanvas.alpha = 1;
+            //displayTextCanvas.alpha = 1;
             currentScreenType = ScreenType.DisplayText;
-            ResetPasswordText();
+            //ResetPasswordText();
         }
         //Password failed.
         else
         {
-            titleText.text = commonStrings.passDict[CommonCompStrings.Password.Fail];
+            //titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Fail];
             computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
             //EventManager.TriggerEvent(passEventString, false);
             //EventManager.TriggerEvent(displayEventString, true);
-            displayTextCanvas.alpha = 1;
-            ResetPasswordText();
+            //displayTextCanvas.alpha = 1;
+            //ResetPasswordText();
             currentScreenType = ScreenType.PasswordFail;
         }
         EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
@@ -382,10 +385,10 @@ public class Computer : Interactable
             }
         }
 
-        if(commandString == commonStrings.cmdDict[CommonCompStrings.Command.Quit])
+        if(commandString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Quit])
         { ExitScreen(); return; }
-        if(commandString == commonStrings.cmdDict[CommonCompStrings.Command.Help])
-        { ShowHelpText(); ResetCommandText(); SelectCommandText(); return; }
+        if(commandString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Help])
+        { ShowHelpText(); return; }
 
         enteredCommand = currentCommandMenu.subCommands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
         if (enteredCommand != null)
@@ -396,7 +399,9 @@ public class Computer : Interactable
 
             commandText.interactable = false;
             displayText = true;
+            displayList.Events.Find(x => x.sentString == commandText.text).Raise();
             displayScreen.Raise();
+
             return;
         }
         else
@@ -420,11 +425,14 @@ public class Computer : Interactable
                             PasswordEnter();
                     }
                 }
+
+                if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error && currentScreenType != ScreenType.Help)
+                    computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
+
                 ShowMenu(enteredMenu);
-                computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
             }
             //if user entered "list" command
-            else if (commandString.Equals(commonStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
+            else if (commandString.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
             {
                 ShowMenu(currentCommandMenu);
             }
@@ -446,7 +454,7 @@ public class Computer : Interactable
     {
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
         currentScreenType = ScreenType.EmailMenu;
-        //titleText.text = commonStrings.emailDict[CommonCompStrings.Email.Prefix] + ;
+        //titleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.Prefix] + ;
         //TODO: convert to email canvas change.
         //EventManager.TriggerEvent(emailEventString, true);
 
@@ -461,8 +469,7 @@ public class Computer : Interactable
     void ShowMenu(MenuCommand openMenu)
     {
         currentCommandMenu = openMenu;
-        menuListText.text = currentCommandMenu.displayText;
-        commandListText.text = currentCommandMenu.commandsDisplayText;
+        //commandListText.text = currentCommandMenu.commandsDisplayText;
         currentScreenType = ScreenType.Menu;
 
         menuScreens.Find(x => x.sentString == openMenu.commandText).Raise();
@@ -482,10 +489,10 @@ public class Computer : Interactable
         passwordScreen.Raise();
 
         //Reset the command input stuff after entering the hacking menu.
-        ResetCommandText();
+        //ResetCommandText();
 
-        commandText.Select();
-        commandText.ActivateInputField();
+        //commandText.Select();
+        //commandText.ActivateInputField();
     }
 
     void StartHacking()
@@ -525,11 +532,11 @@ public class Computer : Interactable
 
     string GetRandomLetters(int wordLength)
     {
-        string builtString = commonStrings.charDict[CommonCompStrings.Char.Empty];
+        string builtString = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
         for(int i = 0; i < wordLength; i++)
         {
             int index = UnityEngine.Random.Range(0, 26);
-            builtString += commonStrings.miscDict[CommonCompStrings.Misc.Alphabet][index];
+            builtString += CommonCompStrings.miscDict[CommonCompStrings.Misc.Alphabet][index];
         }
         return builtString;
     }
@@ -538,34 +545,25 @@ public class Computer : Interactable
     #region Change Text Methods
     private void ShowErrorText()
     {
-        //Play error sound when error text is displayed.
-        mainText.text = commonStrings.errorDict[CommonCompStrings.Error.Text];
-        displayTextCanvas.alpha = 1;
-        titleText.text = commonStrings.errorDict[CommonCompStrings.Error.Title];
-        subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
+        currentScreenType = ScreenType.Error;
         displayText = true;
-
+        OnErrorEnter(commandText.text);
         displayScreen.Raise();
+        errorScreen.Raise();
     }
 
     private void ShowHelpText()
     {
-
-        //TODO: NOT YET IMPLEMENTED - There's a difference between help & error text (invalid command screen).
-        
-        //Play error sound when error text is displayed.
-        //mainText.text = commonStrings.helpDict[CommonCompStrings.Error.Text];
-        ////EventManager.TriggerEvent(displayEventString, true);
-        //displayTextCanvas.alpha = 1;
-        //titleText.text = commonStrings.helpDict[CommonCompStrings.Error.Title];
-        //subtitleText.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
-        //displayText = true;
+        currentScreenType = ScreenType.Help;
+        displayText = true;
+        displayScreen.Raise();
+        helpScreen.Raise();
     }
 
     void ChangeEmailTitleText()
     {
-        emailTitleText.text = commonStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
-            commonStrings.emailDict[CommonCompStrings.Email.TitleNum] + emailInfo.GetUnreadCount() + commonStrings.emailDict[CommonCompStrings.Email.TitleUnread];
+        emailTitleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
+            CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] + emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
     }
 
     //Uses char array for best performance.
@@ -585,11 +583,11 @@ public class Computer : Interactable
         for (int i = 0; i < menus.Commands.Count; i++)
         {
             if (!menus.Commands[i].commandText.Equals(currentMenu.commandText, System.StringComparison.Ordinal))
-                menuString += commonStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
-                    menus.Commands[i].commandText + commonStrings.charDict[CommonCompStrings.Char.NewLine];
+                menuString += CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
+                    menus.Commands[i].commandText + CommonCompStrings.charDict[CommonCompStrings.Char.NewLine];
         }
-        return menuString.Replace(commonStrings.cmdDict[CommonCompStrings.Command.MenuIndent] + currentMenu.commandText +
-               commonStrings.charDict[CommonCompStrings.Char.NewLine], commonStrings.charDict[CommonCompStrings.Char.Empty]);
+        return menuString.Replace(CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] + currentMenu.commandText +
+               CommonCompStrings.charDict[CommonCompStrings.Char.NewLine], CommonCompStrings.charDict[CommonCompStrings.Char.Empty]);
     }
 
     //Returns a string that contains all the commands from a list.
@@ -598,8 +596,8 @@ public class Computer : Interactable
         string commandString = null;
         for (int i = 0; i < commandList.Count; i++)
         {
-            commandString += commonStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
-                commandList[i].commandText + commonStrings.charDict[CommonCompStrings.Char.NewLine];
+            commandString += CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
+                commandList[i].commandText + CommonCompStrings.charDict[CommonCompStrings.Char.NewLine];
         }
         return commandString;
     }
@@ -638,13 +636,11 @@ public class Computer : Interactable
         cmdCaret.Reset();
     }
 
-    void ResetPasswordText()
-    {
-        passwordText.interactable = true;
-        passwordText.text = null;
-        //if(passCaret.enabled)
-        //    passCaret.Reset();
-    }
+    //void ResetPasswordText()
+    //{
+    //    passwordText.interactable = true;
+    //    passwordText.text = null;
+    //}
 
     void SelectCommandText()
     {
@@ -654,11 +650,11 @@ public class Computer : Interactable
         commandText.ActivateInputField();
     }
 
-    void SelectPasswordText()
-    {
-        passwordText.Select();
-        passwordText.ActivateInputField();
-    }
+    //void SelectPasswordText()
+    //{
+    //    passwordText.Select();
+    //    passwordText.ActivateInputField();
+    //}
     #endregion
 
     #endregion
@@ -680,8 +676,8 @@ public class Computer : Interactable
 
         for (int i = 0; i < emailCommand.emailCommands.Count; i++)
         {
-            string emailIndex = commonStrings.charDict[CommonCompStrings.Char.LBracket] + (i+1) +
-                                commonStrings.charDict[CommonCompStrings.Char.RBracket];
+            string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (i+1) +
+                                CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
             subjectText.GetComponent<Text>().text = emailCommand.emailCommands[i].subject;
             Text emailNumText;
             Text emailSub;

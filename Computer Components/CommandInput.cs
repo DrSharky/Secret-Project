@@ -17,19 +17,21 @@ public class CommandInput : MonoBehaviour
     private TMPro.TMP_InputField tmInputField;
     #endregion
 
-    public CommonCompStrings commonStrings;
-
+    #region Caret Variables
     [SerializeField]
     private GameObject caretObject;
     private TMPro.TMP_Text caretText;
     private Caret caretScript;
+    #endregion
 
+    #region Command Input Configurations
     [SerializeField]
     private CommandConfig commandConfig;
     [SerializeField]
     private CommandConfig passConfig;
     [SerializeField]
     private CommandConfig displayConfig;
+    #endregion
 
     private CanvasGroup commandCanvas;
 
@@ -46,9 +48,9 @@ public class CommandInput : MonoBehaviour
         caretText = caretObject.GetComponent<TMPro.TMP_Text>();
         caretScript = caretObject.GetComponent<Caret>();
 
-        commandConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.CmdHeader];
-        passConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.PassHeader];
-        displayConfig.headerString = commonStrings.inputDict[CommonCompStrings.Input.Continue];
+        commandConfig.headerString = CommonCompStrings.inputDict[CommonCompStrings.Input.CmdHeader];
+        passConfig.headerString = CommonCompStrings.inputDict[CommonCompStrings.Input.PassHeader];
+        displayConfig.headerString = CommonCompStrings.inputDict[CommonCompStrings.Input.Continue];
     }
 
     void CommandSetup(CommandConfig config)
@@ -65,12 +67,11 @@ public class CommandInput : MonoBehaviour
         //InputField
         //Set position and reset text.
         inputFieldRectTransform.anchoredPosition = config.inputPos;
-        tmInputField.text = commonStrings.charDict[CommonCompStrings.Char.Empty];
+        tmInputField.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
 
         caretScript.originPos = config.caretPos;
     }
 
-    //TODO: Write logic for remaining possible state changes.
     public void SwitchState(ScreenType state)
     {
         if (commandCanvas.alpha == 0)
@@ -84,10 +85,13 @@ public class CommandInput : MonoBehaviour
             //case 1 for normal command input.
             case ScreenType.Menu:
                 CommandSetup(commandConfig);
+                SelectCommandText();
                 break;
             //case 2 for password input.
             case ScreenType.Password:
                 CommandSetup(passConfig);
+                ResetCommandText();
+                SelectCommandText();
                 break;
             //case 3 for display text setup.
             case ScreenType.DisplayText:
@@ -96,10 +100,14 @@ public class CommandInput : MonoBehaviour
             case ScreenType.Help:
                 caretObject.SetActive(false);
                 CommandSetup(displayConfig);
+                ResetCommandText();
+                SelectCommandText();
                 break;
             //case 4 for email text.
             case ScreenType.Email:
             case ScreenType.EmailMenu:
+                ResetCommandText();
+                SelectCommandText();
                 break;
             //Leave case for password fail blank, it shouldn't change anything.
             case ScreenType.PasswordFail:
@@ -107,7 +115,8 @@ public class CommandInput : MonoBehaviour
             //default for hiding the display.
             case ScreenType.None:
             default:
-                ToggleCanvas();
+                ResetCommandText();
+                commandCanvas.alpha = 0;
                 break;
         }
     }
@@ -118,5 +127,18 @@ public class CommandInput : MonoBehaviour
             commandCanvas.alpha = 0;
         else
             commandCanvas.alpha = 1;
+    }
+
+    void ResetCommandText()
+    {
+        tmInputField.interactable = true;
+        tmInputField.text = null;
+        caretScript.Reset();
+    }
+
+    void SelectCommandText()
+    {
+        tmInputField.Select();
+        tmInputField.ActivateInputField();
     }
 }
