@@ -7,11 +7,6 @@ using UnityEngine.UI;
 //TODO: #1 priority, change event manager stuff to game event scriptable object system.
 //TODO: Add logic for email, separate menu type. (SO)
 
-public class CanvasGroups
-{
-    List<CanvasGroup> canvasgroups;
-}
-
 /// <summary>
 /// The class to use for interactive computers.
 /// </summary>
@@ -50,30 +45,12 @@ public class Computer : Interactable
 
     #region Text Components
     [Header("Text Components")]
-    public Text commandListText;
     public Text mainText;
     public Text emailDisplayText;
-
-    //For accessing the menu title text to change it later.
-    //Assign this in Start().
-    public Text menuTitleText;
 
     //For accessing the email title text ot change it later.
     //Assign this in Start().
     public Text emailTitleText;
-
-    //For accessing the title text to change it later.
-    //Assign this in Start().
-    private Text titleText;
-
-    public CanvasGroup titleCanvas;
-    public CanvasGroup menuCanvas;
-    public CanvasGroup commandCanvas;
-    public CanvasGroup displayTextCanvas;
-
-    //For accessing the subtitle text to change it later.
-    //Assign this in Start().
-    private Text subtitleText;
 
     private Text[] titleObjects;
 
@@ -95,26 +72,16 @@ public class Computer : Interactable
     private MenuCommand currentCommandMenu;
     #endregion
 
-    #region Rect Transforms
-    //Need this to determine width & height of screen.
-    private RectTransform rectTransform;
-    #endregion
-
     #region Carets
     [Header("Carets")]
     [SerializeField]
-    private Caret cmdCaret;
-    //[SerializeField]
-    //private Caret passCaret;
     private GameObject cmdCaretObject;
-    //private GameObject passCaretObject;
     #endregion
 
     #region Audio Components
     [Header("Audio Components")]
     //Audio source for the computer.
     //Default clip is accessSound.
-    public ComputerSounds computerSounds;
     public AudioSource computerAudioSource;
 
     #endregion
@@ -157,19 +124,6 @@ public class Computer : Interactable
 
     void Start()
 	{
-        //Assign these so we don't need to access them indirectly later.
-        cmdCaretObject = cmdCaret.gameObject;
-
-        //Use this to get the width & height of screen.
-        //Needed for the screen saver routine.
-        rectTransform = gameObject.GetComponent<RectTransform>();
-
-        titleObjects = titleCanvas.gameObject.GetComponentsInChildren<Text>();
-        if (titleObjects[0] != null)
-                //titleText = titleObjects[0];
-        if (titleObjects[1] != null)
-            subtitleText = titleObjects[1];
-
         //Insert the email & home commands,
         //if the email comamnd should exist.
         //Then set the current menu to the home menu.
@@ -215,10 +169,6 @@ public class Computer : Interactable
                 {
                     case ScreenType.EmailMenu:
                     case ScreenType.Password:
-                        //Reset and select command text before show menu.
-                        //It needs to be in this order.
-                        ResetCommandText();
-                        SelectCommandText();
                         if (emailInfo.hasEmail)
                             ShowMenu(menus.Commands[1]);
                         else
@@ -245,7 +195,7 @@ public class Computer : Interactable
                         PasswordEnter(passwordText.text);
                     else
                     {
-                        SelectCommandText();
+                        //SelectCommandText();
                         if(currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
                             ShowEmailMenu();
                         else
@@ -275,24 +225,11 @@ public class Computer : Interactable
         activate.Raise();
 
         //Play access sound when activated.
-        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Access]);
-
-        //EventManager.TriggerEvent(titleEventString, true);
-        cmdCaretObject.SetActive(true);
+        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Access]);
 
         //Set this static variable so other scripts know the user
         //is using a computer.
         usingComputer = true;
-
-        //Select the input box so that the user doesn't
-        //have to select it manually.
-        SelectCommandText();
-
-        //Show the home menu on activation.
-        //if (emailInfo.hasEmail)
-        //    ShowMenu(menus.Commands[1]);
-        //else
-        //    ShowMenu(menus.Commands[0]);
     }
 
     //User has exited the computer.
@@ -300,12 +237,6 @@ public class Computer : Interactable
     {
         //Raise deactivate game event (SO).
         deactivate.Raise();
-
-        //ResetCommandText();
-        //ResetPasswordText();
-
-        //EventManager.TriggerEvent(exitEventString);
-        cmdCaret.gameObject.SetActive(false);
 
         //Set the current menu back to the home menu.
         if (emailInfo.hasEmail)
@@ -327,7 +258,7 @@ public class Computer : Interactable
         //Password accepted.
         if (enteredPassword == currentCommandMenu.password)
         {
-            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
+            computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
@@ -340,30 +271,20 @@ public class Computer : Interactable
                             CommonCompStrings.passDict[CommonCompStrings.Password.Entering] +
                             currentCommandMenu.commandText +
                             CommonCompStrings.charDict[CommonCompStrings.Char.Period];
-            //Set the title text to the appropriate message.
-            //titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Success];
 
-            //Hide the password input, need to show the Press Enter prompt after password succeeds.
-            //The command input sets to proper display text when the display panel is toggled to true.
-            //EventManager.TriggerEvent(passEventString, false);
-            //EventManager.TriggerEvent(displayEventString, true);
-            //displayTextCanvas.alpha = 1;
             currentScreenType = ScreenType.DisplayText;
-            //ResetPasswordText();
+            displayScreen.Raise();
         }
         //Password failed.
         else
         {
-            //titleText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Fail];
-            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
+            computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
 
             //EventManager.TriggerEvent(passEventString, false);
             //EventManager.TriggerEvent(displayEventString, true);
-            //displayTextCanvas.alpha = 1;
-            //ResetPasswordText();
             currentScreenType = ScreenType.PasswordFail;
         }
-        EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
+        //EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
     }
 
     //The method that runs when a command is entered.
@@ -379,8 +300,7 @@ public class Computer : Interactable
             if (Input.GetKey(KeyCode.Return))
             {
                 commandString = currentCommandMenu.commandText;
-                ResetCommandText();
-                SelectCommandText();
+                //SelectCommandText();
                 displayText = false;
             }
         }
@@ -427,7 +347,7 @@ public class Computer : Interactable
                 }
 
                 if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error && currentScreenType != ScreenType.Help)
-                    computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
+                    computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
                 ShowMenu(enteredMenu);
             }
@@ -439,13 +359,11 @@ public class Computer : Interactable
             //else the user entered an invalid command.
             else
             {
-                computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
+                computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
                 ShowErrorText();
             }
         }
         //Reset the command input field.
-        ResetCommandText();
-        SelectCommandText();
     }
     #endregion
 
@@ -454,7 +372,6 @@ public class Computer : Interactable
     {
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
         currentScreenType = ScreenType.EmailMenu;
-        //titleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.Prefix] + ;
         //TODO: convert to email canvas change.
         //EventManager.TriggerEvent(emailEventString, true);
 
@@ -469,7 +386,6 @@ public class Computer : Interactable
     void ShowMenu(MenuCommand openMenu)
     {
         currentCommandMenu = openMenu;
-        //commandListText.text = currentCommandMenu.commandsDisplayText;
         currentScreenType = ScreenType.Menu;
 
         menuScreens.Find(x => x.sentString == openMenu.commandText).Raise();
@@ -484,22 +400,16 @@ public class Computer : Interactable
 
         mainText.text = null;
 
-        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
+        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
 
         passwordScreen.Raise();
-
-        //Reset the command input stuff after entering the hacking menu.
-        //ResetCommandText();
-
-        //commandText.Select();
-        //commandText.ActivateInputField();
     }
 
     void StartHacking()
     {
         isHacking = true;
-        cmdCaret.gameObject.SetActive(false);
-        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Typing]);
+        cmdCaretObject.SetActive(false);
+        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Typing]);
         int passwordLength = currentCommandMenu.password.Length;
         StartCoroutine(GetRandPassword(passwordLength));
     }
@@ -565,42 +475,6 @@ public class Computer : Interactable
         emailTitleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
             CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] + emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
     }
-
-    //Uses char array for best performance.
-    string CapitalizeMenuName(string menuName)
-    {
-        char[] a = menuName.ToCharArray();
-        a[0] = char.ToUpper(a[0]);
-        return new string(a);
-    }
-    #endregion
-
-    #region List Command Methods
-    //Returns a string that contains all the menu commands from a list.
-    string MenusList(MenuCommand currentMenu)
-    {
-        string menuString = null;
-        for (int i = 0; i < menus.Commands.Count; i++)
-        {
-            if (!menus.Commands[i].commandText.Equals(currentMenu.commandText, System.StringComparison.Ordinal))
-                menuString += CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
-                    menus.Commands[i].commandText + CommonCompStrings.charDict[CommonCompStrings.Char.NewLine];
-        }
-        return menuString.Replace(CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] + currentMenu.commandText +
-               CommonCompStrings.charDict[CommonCompStrings.Char.NewLine], CommonCompStrings.charDict[CommonCompStrings.Char.Empty]);
-    }
-
-    //Returns a string that contains all the commands from a list.
-    string CommandsList(List<ComputerCommand> commandList)
-    {
-        string commandString = null;
-        for (int i = 0; i < commandList.Count; i++)
-        {
-            commandString += CommonCompStrings.cmdDict[CommonCompStrings.Command.MenuIndent] +
-                commandList[i].commandText + CommonCompStrings.charDict[CommonCompStrings.Char.NewLine];
-        }
-        return commandString;
-    }
     #endregion
 
     #region Get Info Methods
@@ -627,36 +501,6 @@ public class Computer : Interactable
     }
     #endregion
 
-    #region Input Field Methods
-    //Resets the command text input field.
-    void ResetCommandText()
-    {
-        commandText.interactable = true;
-        commandText.text = null;
-        cmdCaret.Reset();
-    }
-
-    //void ResetPasswordText()
-    //{
-    //    passwordText.interactable = true;
-    //    passwordText.text = null;
-    //}
-
-    void SelectCommandText()
-    {
-        if (commandCanvas.alpha == 0)
-            commandCanvas.alpha = 1;
-        commandText.Select();
-        commandText.ActivateInputField();
-    }
-
-    //void SelectPasswordText()
-    //{
-    //    passwordText.Select();
-    //    passwordText.ActivateInputField();
-    //}
-    #endregion
-
     #endregion
 
     void CreateEmailText()
@@ -666,9 +510,6 @@ public class Computer : Interactable
         //and the second for the email subject text.
         //They're different because the number is what marks
         //it read/unread by changing text and background color.
-
-        RectTransform numberRect = numberText.GetComponent<RectTransform>();
-        RectTransform subjectRect = subjectText.GetComponent<RectTransform>();
 
         //Vector3 emailListPos = emailPanel.transform.position;
         //Quaternion emailListRot = emailPanel.transform.rotation;

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Computer Sounds")]
-public class ComputerSounds : Sirenix.OdinInspector.SerializedScriptableObject
+public static class ComputerSounds
 {
     public enum Clips
     {
@@ -13,5 +12,5 @@ public class ComputerSounds : Sirenix.OdinInspector.SerializedScriptableObject
         Typing
     }
 
-    public Dictionary<Clips, AudioClip> audioDict = new Dictionary<Clips, AudioClip>();
+    public static Dictionary<Clips, AudioClip> audioDict = new Dictionary<Clips, AudioClip>();
 }

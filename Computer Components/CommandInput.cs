@@ -90,7 +90,6 @@ public class CommandInput : MonoBehaviour
             //case 2 for password input.
             case ScreenType.Password:
                 CommandSetup(passConfig);
-                ResetCommandText();
                 SelectCommandText();
                 break;
             //case 3 for display text setup.
@@ -100,13 +99,11 @@ public class CommandInput : MonoBehaviour
             case ScreenType.Help:
                 caretObject.SetActive(false);
                 CommandSetup(displayConfig);
-                ResetCommandText();
                 SelectCommandText();
                 break;
             //case 4 for email text.
             case ScreenType.Email:
             case ScreenType.EmailMenu:
-                ResetCommandText();
                 SelectCommandText();
                 break;
             //Leave case for password fail blank, it shouldn't change anything.
@@ -115,10 +112,10 @@ public class CommandInput : MonoBehaviour
             //default for hiding the display.
             case ScreenType.None:
             default:
-                ResetCommandText();
                 commandCanvas.alpha = 0;
                 break;
         }
+        ResetCommandText();
     }
 
     void ToggleCanvas()
