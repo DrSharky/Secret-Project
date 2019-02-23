@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
-public static class ComputerSounds
+public class ComputerSounds : SerializedScriptableObject
 {
     public enum Clips
     {
@@ -12,5 +12,5 @@ public static class ComputerSounds
         Typing
     }
 
-    public static Dictionary<Clips, AudioClip> audioDict = new Dictionary<Clips, AudioClip>();
+    public Dictionary<Clips, AudioClip> audioDict = new Dictionary<Clips, AudioClip>();
 }

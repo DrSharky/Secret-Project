@@ -17,6 +17,7 @@ public class Computer : Interactable
     #region Common Scriptable Objects
     [Header("Common Computer SOs")]
     public CommonCompCommands commands;
+    public ComputerSounds computerSounds;
     #endregion
 
     #region Menus, Commands, Emails
@@ -108,6 +109,8 @@ public class Computer : Interactable
     public GameEvent helpScreen;
     public GameEvent errorScreen;
     public GameEvent passwordScreen;
+    public GameEvent passwordSuccScreen;
+    public GameEvent passwordFailScreen;
     public GameEvent menuEvent;
     public List<GameEvent> menuScreens;
 
@@ -204,6 +207,10 @@ public class Computer : Interactable
                 }
                 else if(currentScreenType == ScreenType.PasswordFail)
                     ShowHacking();
+                else if(currentScreenType == ScreenType.PasswordSucceed)
+                {
+                    ShowMenu(currentCommandMenu);
+                }
                 else
                     CommandEnter();
             }
@@ -225,7 +232,7 @@ public class Computer : Interactable
         activate.Raise();
 
         //Play access sound when activated.
-        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Access]);
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Access]);
 
         //Set this static variable so other scripts know the user
         //is using a computer.
@@ -235,14 +242,16 @@ public class Computer : Interactable
     //User has exited the computer.
     void ExitScreen()
     {
-        //Raise deactivate game event (SO).
-        deactivate.Raise();
-
         //Set the current menu back to the home menu.
         if (emailInfo.hasEmail)
             currentCommandMenu = menus.Commands[1];
         else
             currentCommandMenu = menus.Commands[0];
+
+        menuScreens.Find(x => x.sentString == "home").Raise();
+
+        //Raise deactivate game event (SO).
+        deactivate.Raise();
 
         //Set the static variable so other scripts know the user
         //is no longer using a computer.
@@ -258,7 +267,8 @@ public class Computer : Interactable
         //Password accepted.
         if (enteredPassword == currentCommandMenu.password)
         {
-            computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Accept]);
+            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
+            menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
@@ -272,17 +282,19 @@ public class Computer : Interactable
                             currentCommandMenu.commandText +
                             CommonCompStrings.charDict[CommonCompStrings.Char.Period];
 
-            currentScreenType = ScreenType.DisplayText;
+            currentScreenType = ScreenType.PasswordSucceed;
             displayScreen.Raise();
+            passwordSuccScreen.Raise();
         }
         //Password failed.
         else
         {
-            computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
+            computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
             //EventManager.TriggerEvent(passEventString, false);
             //EventManager.TriggerEvent(displayEventString, true);
             currentScreenType = ScreenType.PasswordFail;
+            passwordFailScreen.Raise();
         }
         //EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
     }
@@ -347,7 +359,7 @@ public class Computer : Interactable
                 }
 
                 if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error && currentScreenType != ScreenType.Help)
-                    computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Accept]);
+                    computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
                 ShowMenu(enteredMenu);
             }
@@ -359,7 +371,7 @@ public class Computer : Interactable
             //else the user entered an invalid command.
             else
             {
-                computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
+                computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
                 ShowErrorText();
             }
         }
@@ -400,7 +412,7 @@ public class Computer : Interactable
 
         mainText.text = null;
 
-        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Error]);
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
         passwordScreen.Raise();
     }
@@ -409,7 +421,7 @@ public class Computer : Interactable
     {
         isHacking = true;
         cmdCaretObject.SetActive(false);
-        computerAudioSource.PlayOneShot(ComputerSounds.audioDict[ComputerSounds.Clips.Typing]);
+        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Typing]);
         int passwordLength = currentCommandMenu.password.Length;
         StartCoroutine(GetRandPassword(passwordLength));
     }
