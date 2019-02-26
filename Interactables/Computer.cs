@@ -111,6 +111,7 @@ public class Computer : Interactable
     public GameEvent passwordScreen;
     public GameEvent passwordSuccScreen;
     public GameEvent passwordFailScreen;
+    public GameEvent emailMenuScreen;
     public GameEvent menuEvent;
     public List<GameEvent> menuScreens;
 
@@ -268,7 +269,15 @@ public class Computer : Interactable
         if (enteredPassword == currentCommandMenu.password)
         {
             computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
-            menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
+
+            if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
+            {
+                ShowEmailMenu();
+            }
+            else
+            {
+                menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
+            }
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
@@ -384,6 +393,7 @@ public class Computer : Interactable
     {
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
         currentScreenType = ScreenType.EmailMenu;
+        emailMenuScreen.Raise();
         //TODO: convert to email canvas change.
         //EventManager.TriggerEvent(emailEventString, true);
 
@@ -514,53 +524,6 @@ public class Computer : Interactable
     #endregion
 
     #endregion
-
-    void CreateEmailText()
-    {
-        //Need to create 2 objects for each email in list.
-        //1 for the number of the email in the list,
-        //and the second for the email subject text.
-        //They're different because the number is what marks
-        //it read/unread by changing text and background color.
-
-        //Vector3 emailListPos = emailPanel.transform.position;
-        //Quaternion emailListRot = emailPanel.transform.rotation;
-        
-
-        for (int i = 0; i < emailCommand.emailCommands.Count; i++)
-        {
-            string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (i+1) +
-                                CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
-            subjectText.GetComponent<Text>().text = emailCommand.emailCommands[i].subject;
-            Text emailNumText;
-            Text emailSub;
-            RawImage emailNum;
-
-            if (i > 0)
-            {
-                //emailNum = Instantiate(numberText, emailPanel.transform);
-                //emailNum.rectTransform.anchoredPosition += new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
-                //emailSub = Instantiate(subjectText,emailPanel.transform);
-                //emailSub.rectTransform.anchoredPosition += new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
-            }
-            else
-            {
-                emailCommand.emailCommands[i].read = true;
-                //emailNum = Instantiate(numberText, emailPanel.transform);
-                //emailSub = Instantiate(subjectText, emailPanel.transform);
-            }
-
-            //emailNumText = emailNum.transform.GetComponentInChildren<Text>();
-            //emailNumText.text = emailIndex;
-
-            if (!emailCommand.emailCommands[i].read)
-            {
-                //emailNum.color = Color.white;
-                //emailNumText.color = Color.black;
-            }
-        }
-        //emailPanel.SetActive(false);
-    }
 }
 
 //Use this to determine behavior when pressing ENTER & ESC.
