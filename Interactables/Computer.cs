@@ -46,7 +46,6 @@ public class Computer : Interactable
 
     #region Text Components
     [Header("Text Components")]
-    public Text mainText;
     public Text emailDisplayText;
 
     //For accessing the email title text ot change it later.
@@ -270,26 +269,24 @@ public class Computer : Interactable
         {
             computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
+            menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
+
             if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
             {
                 ShowEmailMenu();
-            }
-            else
-            {
-                menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
             }
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
 
             //Set the display text panel to show the appropriate message.
-            mainText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Accepted] +
-                            currentCommandMenu.password + 
-                            CommonCompStrings.charDict[CommonCompStrings.Char.Greater] +
-                            CommonCompStrings.charDict[CommonCompStrings.Char.NewLine] +
-                            CommonCompStrings.passDict[CommonCompStrings.Password.Entering] +
-                            currentCommandMenu.commandText +
-                            CommonCompStrings.charDict[CommonCompStrings.Char.Period];
+            //mainText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Accepted] +
+            //                currentCommandMenu.password + 
+            //                CommonCompStrings.charDict[CommonCompStrings.Char.Greater] +
+            //                CommonCompStrings.charDict[CommonCompStrings.Char.NewLine] +
+            //                CommonCompStrings.passDict[CommonCompStrings.Password.Entering] +
+            //                currentCommandMenu.commandText +
+            //                CommonCompStrings.charDict[CommonCompStrings.Char.Period];
 
             currentScreenType = ScreenType.PasswordSucceed;
             displayScreen.Raise();
@@ -334,7 +331,7 @@ public class Computer : Interactable
         enteredCommand = currentCommandMenu.subCommands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
         if (enteredCommand != null)
         {
-            mainText.text = enteredCommand.displayText;
+            //mainText.text = enteredCommand.displayText;
 
             currentScreenType = ScreenType.DisplayText;            
 
@@ -420,7 +417,7 @@ public class Computer : Interactable
     {
         currentScreenType = ScreenType.Password;
 
-        mainText.text = null;
+        //mainText.text = null;
 
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 

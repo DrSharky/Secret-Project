@@ -9,10 +9,10 @@ public class TitleCanvas : MonoBehaviour
     public Text titleText;
     public Text subtitleText;
     public MenuCommandList menuCmdList;
+    public EmailCommandList emailInfo;
 
     private CanvasGroup canvasGroup;
     private MenuCommand currentMenu;
-    private EmailCommandList emailInfo;
     private string errorCmd;
 
     private delegate void MenuSwitch(ScreenType menu);
