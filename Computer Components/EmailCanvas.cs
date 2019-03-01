@@ -6,12 +6,11 @@ using UnityEngine.UI;
 public class EmailCanvas : MonoBehaviour
 {
     [SerializeField] private GameObject numberObj;
-    [SerializeField] private GameObject subjectObj;
-    private Text subjectText;
-    private Text numberText;
+    [SerializeField] private Text numberText;
+    [SerializeField] private Text subjectText;
 
     [SerializeField] private bool hasEmail;
-    private EmailCommandList emailCommands;
+    [SerializeField] private EmailCommandList emailCommands;
 
     private CanvasGroup emailCanvas;
 
@@ -20,11 +19,7 @@ public class EmailCanvas : MonoBehaviour
     {
         emailCanvas = GetComponent<CanvasGroup>();
         if (hasEmail)
-        {
             CreateEmailText();
-            subjectText = subjectObj.GetComponent<Text>();
-            numberText = numberObj.GetComponent<Text>();
-        }
     }
 
     public void SwitchState(ScreenType state)
@@ -62,19 +57,21 @@ public class EmailCanvas : MonoBehaviour
             Text emailSub;
             Text emailNum;
 
-            if (i > 0)
-            {
+            //if (i > 0)
+            //{
                 emailNum = Instantiate(numberText, emailCanvas.transform);
-                emailNum.rectTransform.anchoredPosition += new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
+                emailNum.rectTransform.anchoredPosition += 
+                    new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
                 emailSub = Instantiate(subjectText, emailCanvas.transform);
-                emailSub.rectTransform.anchoredPosition += new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
-            }
-            else
-            {
-                emailCommands.Commands[i].read = true;
-                emailNum = Instantiate(numberText, emailCanvas.transform);
-                emailSub = Instantiate(subjectText, emailCanvas.transform);
-            }
+                emailSub.rectTransform.anchoredPosition += 
+                    new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
+            //}
+            //else
+            //{
+            //    emailCommands.Commands[i].read = true;
+            //    emailNum = Instantiate(numberText, emailCanvas.transform);
+            //    emailSub = Instantiate(subjectText, emailCanvas.transform);
+            //}
 
             emailNumText = emailNum.transform.GetComponentInChildren<Text>();
             emailNumText.text = emailIndex;

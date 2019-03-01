@@ -77,6 +77,7 @@ public class TitleCanvas : MonoBehaviour
             case ScreenType.Email:
             case ScreenType.EmailMenu:
                 titleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.Prefix] + emailInfo.accountName;
+                ResetSubtitle();
                 break;
             case ScreenType.Help:
                 titleText.text = CommonCompStrings.helpDict[CommonCompStrings.Help.Title];

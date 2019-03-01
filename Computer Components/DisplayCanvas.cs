@@ -61,6 +61,7 @@ public class DisplayCanvas : MonoBehaviour
                 break;
             case ScreenType.PasswordSucceed:
                 canvasGroup.alpha = 1;
+
                 displayText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Accepted] +
                             currentMenu.password +
                             CommonCompStrings.charDict[CommonCompStrings.Char.Greater] +

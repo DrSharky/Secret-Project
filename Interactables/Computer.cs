@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //TODO: Add functionality for audio source. - only email audio stuff not done.
-//TODO: #1 priority, change event manager stuff to game event scriptable object system.
 //TODO: Add logic for email, separate menu type. (SO)
 
 /// <summary>
@@ -148,8 +147,6 @@ public class Computer : Interactable
 
             //Set the email text to the correct format.
             ChangeEmailTitleText();
-
-            //CreateEmailText();
         }
         else
         {
@@ -279,15 +276,6 @@ public class Computer : Interactable
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
 
-            //Set the display text panel to show the appropriate message.
-            //mainText.text = CommonCompStrings.passDict[CommonCompStrings.Password.Accepted] +
-            //                currentCommandMenu.password + 
-            //                CommonCompStrings.charDict[CommonCompStrings.Char.Greater] +
-            //                CommonCompStrings.charDict[CommonCompStrings.Char.NewLine] +
-            //                CommonCompStrings.passDict[CommonCompStrings.Password.Entering] +
-            //                currentCommandMenu.commandText +
-            //                CommonCompStrings.charDict[CommonCompStrings.Char.Period];
-
             currentScreenType = ScreenType.PasswordSucceed;
             displayScreen.Raise();
             passwordSuccScreen.Raise();
@@ -364,10 +352,15 @@ public class Computer : Interactable
                     }
                 }
 
-                if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error && currentScreenType != ScreenType.Help)
+                if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error
+                    && currentScreenType != ScreenType.Help)
                     computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
-                ShowMenu(enteredMenu);
+                if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
+                    System.StringComparison.Ordinal))
+                    ShowEmailMenu();
+                else
+                    ShowMenu(enteredMenu);
             }
             //if user entered "list" command
             else if (commandString.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
@@ -388,9 +381,11 @@ public class Computer : Interactable
     #region Show Menu Methods
     void ShowEmailMenu()
     {
-        //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
+        menuScreens.Find(x => x.sentString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Email]).Raise();
         currentScreenType = ScreenType.EmailMenu;
-        emailMenuScreen.Raise();
+
+        //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
+
         //TODO: convert to email canvas change.
         //EventManager.TriggerEvent(emailEventString, true);
 
