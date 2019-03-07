@@ -36,6 +36,9 @@ public class EmailCanvas : MonoBehaviour
         }
     }
 
+    //TODO: Change so that text from email body can be used in the email text area.
+    //Maybe create a second text area for displaying body of emails.
+
     void CreateEmailText()
     {
         //Need to create 2 objects for each email in list.
@@ -55,30 +58,33 @@ public class EmailCanvas : MonoBehaviour
             subjectText.text = emailCommands.Commands[i].subject;
             Text emailNumText;
             Text emailSub;
-            Text emailNum;
+            GameObject numObjCopy;
 
-            //if (i > 0)
-            //{
-                emailNum = Instantiate(numberText, emailCanvas.transform);
-                emailNum.rectTransform.anchoredPosition += 
-                    new Vector2(0.0f, -emailNum.rectTransform.rect.height * i);
-                emailSub = Instantiate(subjectText, emailCanvas.transform);
-                emailSub.rectTransform.anchoredPosition += 
-                    new Vector2(0.0f, -emailSub.rectTransform.rect.height * i);
-            //}
-            //else
-            //{
-            //    emailCommands.Commands[i].read = true;
-            //    emailNum = Instantiate(numberText, emailCanvas.transform);
-            //    emailSub = Instantiate(subjectText, emailCanvas.transform);
-            //}
+            numObjCopy = Instantiate(numberObj, emailCanvas.transform);
 
-            emailNumText = emailNum.transform.GetComponentInChildren<Text>();
+            RectTransform numRect = numObjCopy.GetComponent<RectTransform>();
+            RawImage numberImg = numObjCopy.GetComponent<RawImage>();
+
+            numRect.anchorMin = new Vector2(0f, 1f);
+            numRect.anchorMax = new Vector2(0f, 1f);
+
+            numRect.anchoredPosition += 
+                new Vector2(0f, -numRect.rect.height * (i+1));
+
+            emailSub = Instantiate(subjectText, emailCanvas.transform);
+
+            emailSub.rectTransform.anchorMin = new Vector2(0f, 1f);
+            emailSub.rectTransform.anchorMax = new Vector2(0f, 1f);
+
+            emailSub.rectTransform.anchoredPosition += 
+                new Vector2(0f, -emailSub.rectTransform.rect.height * (i+1));
+
+            emailNumText = numObjCopy.transform.GetComponentInChildren<Text>();
             emailNumText.text = emailIndex;
 
             if (!emailCommands.Commands[i].read)
             {
-                emailNum.color = Color.white;
+                numberImg.color = Color.white;
                 emailNumText.color = Color.black;
             }
         }

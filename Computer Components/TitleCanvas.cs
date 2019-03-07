@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 //TODO: Work in progress. Figure out how to include string changes in game events.
@@ -15,24 +13,16 @@ public class TitleCanvas : MonoBehaviour
     private MenuCommand currentMenu;
     private string errorCmd;
 
-    private delegate void MenuSwitch(ScreenType menu);
-    private event MenuSwitch OnSwitch;
-
     // Use this for initialization
     void Start()
     {
-        //Yeah, yeah, shouldn't do this.
-        //I'm not sure how else to handle this one though.
-        GetComponentInParent<Computer>().OnErrorEnter += ErrorCommand;
-
         canvasGroup = GetComponent<CanvasGroup>();
-        OnSwitch += SwitchState;
     }
 
     public void SwitchMenu(string menu)
     {
         currentMenu = menuCmdList.Commands.Find(x => x.commandText == menu);
-        OnSwitch(ScreenType.Menu);
+        SwitchState(ScreenType.Menu);
     }
 
     public void ErrorCommand(string command)
@@ -46,13 +36,11 @@ public class TitleCanvas : MonoBehaviour
             subtitleText.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
     }
 
-
     //Could edit this to make menu event a special case where it only passes string instead
     //Title is always showing, so no need to make another case for it.
     //Same kinda goes for other menu events. Just use the specific menu events,
     //along with the generic menu event. specific takes care of strings, generic takes care of on/off.
     //Maybe this would work?
-
     public void SwitchState(ScreenType screenType)
     {
         switch (screenType)

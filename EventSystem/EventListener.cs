@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,7 +14,14 @@ public class EventListener : MonoBehaviour
         {
             foreach (EventAndResponse eAndR in eventAndResponses)
             {
-                eAndR.gameEvent.Register(this);
+                if(eAndR.gameEvent == null)
+                {
+                    Debug.Log("eAndR Error: " + eAndR);
+                    Debug.Log("Missing Game Event on listener: " + gameObject.name);
+                }
+                else
+                    eAndR.gameEvent.Register(this);
+
             }
         }
 
@@ -27,7 +32,8 @@ public class EventListener : MonoBehaviour
         {
             foreach (EventAndResponse eAndR in eventAndResponses)
             {
-                eAndR.gameEvent.DeRegister(this);
+                if (eAndR.gameEvent != null)
+                    eAndR.gameEvent.DeRegister(this);
             }
         }
     }
@@ -41,7 +47,8 @@ public class EventListener : MonoBehaviour
             if (passedEvent == eventAndResponses[i].gameEvent)
             {
                 // Uncomment the line below for debugging the event listens and other details
-                Debug.Log("Called Event named: " + eventAndResponses[i].name + " on GameObject: " + gameObject.name);
+                Debug.Log("Called Event named: " + eventAndResponses[i].name +
+                          " on GameObject: " + gameObject.name);
 
 
                 eventAndResponses[i].EventRaised();
@@ -49,7 +56,6 @@ public class EventListener : MonoBehaviour
         }
     }
 }
-
 
 [System.Serializable]
 public class EventAndResponse

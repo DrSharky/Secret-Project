@@ -2,6 +2,9 @@
 
 public class CommandInput : MonoBehaviour
 {
+    [SerializeField]
+    private EmailCommandList emailInfo;
+
     #region Header Variables
     [SerializeField]
     private GameObject headerObject;
@@ -31,6 +34,8 @@ public class CommandInput : MonoBehaviour
     private CommandConfig passConfig;
     [SerializeField]
     private CommandConfig displayConfig;
+    [SerializeField]
+    private CommandConfig emailConfig;
     #endregion
 
     private CanvasGroup commandCanvas;
@@ -104,6 +109,8 @@ public class CommandInput : MonoBehaviour
             //case 4 for email text.
             case ScreenType.Email:
             case ScreenType.EmailMenu:
+                GetEmailCommandHeader();
+                CommandSetup(emailConfig);
                 SelectCommandText();
                 break;
             //Leave case for password fail blank, it shouldn't change anything.
@@ -137,5 +144,10 @@ public class CommandInput : MonoBehaviour
     {
         tmInputField.Select();
         tmInputField.ActivateInputField();
+    }
+
+    void GetEmailCommandHeader()
+    {
+        emailConfig.headerString = emailInfo.GetEmailCount() + " total emails, choose 1..." + emailInfo.GetEmailCount() + "\n[n]ext or [p]rev for more emails\n[q]uit to exit: ";
     }
 }

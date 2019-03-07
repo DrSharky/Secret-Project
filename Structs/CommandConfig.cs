@@ -16,7 +16,8 @@ public struct CommandConfig
     //Caret position.
     public Vector2 caretPos;
 
-    //Vector to set header Width. Needs to change to accommodate continue text. default is 250.
+    //Vector to set header Width.
+    //Needs to change to accommodate continue text. default is 250.
     public Vector2 headerVector;
 
 }

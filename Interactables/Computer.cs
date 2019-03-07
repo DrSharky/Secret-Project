@@ -15,7 +15,6 @@ public class Computer : Interactable
 
     #region Common Scriptable Objects
     [Header("Common Computer SOs")]
-    public CommonCompCommands commands;
     public ComputerSounds computerSounds;
     #endregion
 
@@ -43,18 +42,6 @@ public class Computer : Interactable
     private DisplayEventsList displayList;
     #endregion
 
-    #region Text Components
-    [Header("Text Components")]
-    public Text emailDisplayText;
-
-    //For accessing the email title text ot change it later.
-    //Assign this in Start().
-    public Text emailTitleText;
-
-    private Text[] titleObjects;
-
-    #endregion
-
     #region Text Mesh Pro InputFields
     [Header("TM_Pro InputFields")]
     //The input field for the text input gameobject.
@@ -62,17 +49,11 @@ public class Computer : Interactable
     //private InputField commandText;
     private TMPro.TMP_InputField commandText;
 
-    [SerializeField]
-    private TMPro.TMP_InputField passwordText;
     #endregion
 
     #region Command Fields
     //Variable to store the current menu.
     private MenuCommand currentCommandMenu;
-    #endregion
-
-    #region Carets
-    [Header("Carets")]
     [SerializeField]
     private GameObject cmdCaretObject;
     #endregion
@@ -93,9 +74,9 @@ public class Computer : Interactable
 
     private ScreenType currentScreenType = ScreenType.Menu;
 
-    [Header("Other Variables")]
-    public RawImage numberText;
-    public Text subjectText;
+    //Make a reference to the pw coroutine so we can properly stop
+    //it from running if the user presses escape during hacking.
+    private IEnumerator randPasswordCoroutine;
 
     #endregion
 
@@ -112,11 +93,11 @@ public class Computer : Interactable
     public GameEvent emailMenuScreen;
     public GameEvent menuEvent;
     public List<GameEvent> menuScreens;
+    public GameEvent errorString;
+    public GameEvent emailEvent;
+    public GameEvent emailIndex;
 
     #endregion
-
-    public delegate void ErrorDelegate(string errorCmd);
-    public event ErrorDelegate OnErrorEnter;
 
     #endregion
 
@@ -144,9 +125,6 @@ public class Computer : Interactable
             //menus.Commands.Insert(1, homeCommand);
             //Set the current menu to the home menu.
             currentCommandMenu = menus.Commands[1];
-
-            //Set the email text to the correct format.
-            ChangeEmailTitleText();
         }
         else
         {
@@ -161,14 +139,19 @@ public class Computer : Interactable
 	{
         if (usingComputer)
         {
-            //If the user presses Esc & is using the computer,
-            //then reset the computer and give player control back.
+            //If the user presses Esc & is using the computer
             if (Input.GetKeyUp(KeyCode.Escape))
             {
                 switch (currentScreenType)
                 {
                     case ScreenType.EmailMenu:
                     case ScreenType.Password:
+                        commandText.text = null;
+                        if(randPasswordCoroutine != null)
+                            StopCoroutine(randPasswordCoroutine);
+                        isHacking = false;
+                        if (computerAudioSource.isPlaying)
+                            computerAudioSource.Stop();
                         if (emailInfo.hasEmail)
                             ShowMenu(menus.Commands[1]);
                         else
@@ -185,28 +168,82 @@ public class Computer : Interactable
                         break;
                 }
             }
+            //keep isHacking here, or at least keep the order of "check escape key, then isHacking".
+            //This way, user can cancel hacking with escape, but can't otherwise interrupt the
+            //hacking process with other keystrokes.
             else if (isHacking)
                 return;
+            else if(currentScreenType == ScreenType.EmailMenu)
+            {
+                switch (Input.inputString)
+                {
+                    case "p":
+                        commandText.text = null;
+                        break;
+                    case "n":
+                        commandText.text = null;
+                        break;
+                    case "q":
+                        commandText.text = null;
+                        ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
+                        break;
+                    case "1": case "2": case"3":case "4": case "5": case "6": case "7": case "8": case "9":
+                        commandText.text = null;
+                        emailIndex.sentInt = int.Parse(Input.inputString);
+                        emailEvent.Raise();
+                        emailIndex.Raise();
+                        emailIndex.sentInt = 0;
+                        currentScreenType = ScreenType.Email;
+                        break;
+                    default:
+                        commandText.text = null;
+                        break;
+                }
+            }
+            else if(currentScreenType == ScreenType.Email)
+            {
+                switch (Input.inputString)
+                {
+                    case "d":
+                        emailMenuScreen.Raise();
+                        commandText.text = null;
+                        break;
+                    case "n":
+                        commandText.text = null;
+                        break;
+                    case "p":
+                        commandText.text = null;
+                        break;
+                    default:
+                        commandText.text = null;
+                        break;
+                }
+            }
             else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 if (currentScreenType == ScreenType.Password)
                 {
                     if (!currentCommandMenu.alreadyHacked)
-                        PasswordEnter(passwordText.text);
+                        PasswordEnter(commandText.text);
                     else
                     {
+                        //PasswordEnter(currentCommandMenu.password);
                         //SelectCommandText();
-                        if(currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
-                            ShowEmailMenu();
-                        else
-                            ShowMenu(currentCommandMenu);
+                        //if(currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
+                        //    ShowEmailMenu();
+                        //else
+                        //    ShowMenu(currentCommandMenu);
                     }
                 }
                 else if(currentScreenType == ScreenType.PasswordFail)
                     ShowHacking();
                 else if(currentScreenType == ScreenType.PasswordSucceed)
                 {
-                    ShowMenu(currentCommandMenu);
+                    if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
+                        System.StringComparison.Ordinal))
+                        ShowEmailMenu();
+                    else
+                        ShowMenu(currentCommandMenu);
                 }
                 else
                     CommandEnter();
@@ -268,10 +305,10 @@ public class Computer : Interactable
 
             menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
 
-            if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
-            {
-                ShowEmailMenu();
-            }
+            //if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
+            //{
+            //    ShowEmailMenu();
+            //}
 
             //set the hacked to true, so user doesn't have to hack again.
             currentCommandMenu.alreadyHacked = true;
@@ -284,13 +321,9 @@ public class Computer : Interactable
         else
         {
             computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
-
-            //EventManager.TriggerEvent(passEventString, false);
-            //EventManager.TriggerEvent(displayEventString, true);
             currentScreenType = ScreenType.PasswordFail;
             passwordFailScreen.Raise();
         }
-        //EventManager.TriggerEvent("State" + commandCanvas.name, currentScreenType);
     }
 
     //The method that runs when a command is entered.
@@ -345,22 +378,29 @@ public class Computer : Interactable
                     }
                     else
                     {
+                        PasswordEnter(currentCommandMenu.password);
+                        return;
+
                         //Make sure that the other commands don't enter a password if
                         //the menu has already been hacked.
-                        if(currentScreenType == ScreenType.Password)
-                            PasswordEnter();
+                        //if (currentScreenType == ScreenType.Password)
+                        //{
+                        //    return;
+                        //}
                     }
                 }
-
-                if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error
-                    && currentScreenType != ScreenType.Help)
-                    computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
-
-                if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
-                    System.StringComparison.Ordinal))
-                    ShowEmailMenu();
                 else
-                    ShowMenu(enteredMenu);
+                {
+                    if (currentScreenType != ScreenType.DisplayText && currentScreenType != ScreenType.Error
+                    && currentScreenType != ScreenType.Help)
+                        computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
+
+                    if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
+                    System.StringComparison.Ordinal))
+                        ShowEmailMenu();
+                    else
+                        ShowMenu(enteredMenu);
+                }
             }
             //if user entered "list" command
             else if (commandString.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
@@ -374,26 +414,17 @@ public class Computer : Interactable
                 ShowErrorText();
             }
         }
-        //Reset the command input field.
     }
     #endregion
 
     #region Show Menu Methods
     void ShowEmailMenu()
     {
-        menuScreens.Find(x => x.sentString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Email]).Raise();
+        //menuScreens.Find(x => x.sentString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Email]).Raise();
         currentScreenType = ScreenType.EmailMenu;
+        emailMenuScreen.Raise();
 
         //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
-
-        //TODO: convert to email canvas change.
-        //EventManager.TriggerEvent(emailEventString, true);
-
-        //if (passCaretObject.activeInHierarchy)
-        //    passCaretObject.SetActive(false);
-
-        //Set the command input text deactivate.
-        //Create an extra panel for email instructions to activate.
     }
 
     //Display the correct menu & commands.
@@ -412,8 +443,6 @@ public class Computer : Interactable
     {
         currentScreenType = ScreenType.Password;
 
-        //mainText.text = null;
-
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
 
         passwordScreen.Raise();
@@ -424,8 +453,11 @@ public class Computer : Interactable
         isHacking = true;
         cmdCaretObject.SetActive(false);
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Typing]);
-        int passwordLength = currentCommandMenu.password.Length;
-        StartCoroutine(GetRandPassword(passwordLength));
+        int passTime = currentCommandMenu.password.Length;
+        //Set coroutine value right before calling it, need to know passTime before
+        //setting coroutine value, because passTime can be a variable length.
+        randPasswordCoroutine = GetRandPassword(passTime);
+        StartCoroutine(randPasswordCoroutine);
     }
 
     //This creates the effect of the letters in the password
@@ -446,12 +478,12 @@ public class Computer : Interactable
         if (computerAudioSource.isPlaying)
             computerAudioSource.Stop();
         isHacking = false;
-        PasswordEnter(passwordText.text);
+        PasswordEnter(commandText.text);
     }
 
     void RandomizeLetters(int index = 0)
     {
-        passwordText.text = currentCommandMenu.password.Substring(0, index) + GetRandomLetters(currentCommandMenu.password.Length - index);
+        commandText.text = currentCommandMenu.password.Substring(0, index) + GetRandomLetters(currentCommandMenu.password.Length - index);
     }
 
     string GetRandomLetters(int wordLength)
@@ -469,11 +501,13 @@ public class Computer : Interactable
     #region Change Text Methods
     private void ShowErrorText()
     {
+        errorString.sentString = commandText.text;
         currentScreenType = ScreenType.Error;
         displayText = true;
-        OnErrorEnter(commandText.text);
         displayScreen.Raise();
+        errorString.Raise();
         errorScreen.Raise();
+        errorString.sentString = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
     }
 
     private void ShowHelpText()
@@ -484,11 +518,6 @@ public class Computer : Interactable
         helpScreen.Raise();
     }
 
-    void ChangeEmailTitleText()
-    {
-        emailTitleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
-            CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] + emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
-    }
     #endregion
 
     #region Get Info Methods

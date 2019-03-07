@@ -36,11 +36,8 @@ public class MenuCommand : ComputerCommand
     public string commandsDisplayText;
 
     public string menuPanelTitle;
-
     public bool hackable;
-
     public bool alreadyHacked;
-
     public string password;
 
     public MenuCommand(string name) : base(name)

@@ -4,18 +4,29 @@ using UnityEngine;
 
 public class MenuCanvas : MonoBehaviour
 {
-
     public delegate void MenuDelegate(string value);
     public event MenuDelegate OnMenuSwitch;
 
     public MenuCommandList menuCmdList;
+    public EmailCommandList emailInfo;
 
     public UnityEngine.UI.Text menuTitleText;
     public UnityEngine.UI.Text menuListText;
     public UnityEngine.UI.Text commandListText;
+    public UnityEngine.UI.Text emailTitleText;
     private CanvasGroup canvasGroup;
     private MenuCommand currentMenu;
 
+    private string emailText;
+
+    void Start()
+    {
+        canvasGroup = GetComponent<CanvasGroup>();
+        emailText = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
+            CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] +
+            emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
+        emailTitleText.text = emailText;
+    }
 
     public void SwitchMenu(string menu)
     {
@@ -24,11 +35,6 @@ public class MenuCanvas : MonoBehaviour
         menuListText.text = currentMenu.displayText;
         commandListText.text = currentMenu.commandsDisplayText;
         OnMenuSwitch(menu);
-    }
-
-    void Start()
-    {
-        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void SwitchState(ScreenType screenType)

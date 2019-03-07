@@ -32,7 +32,7 @@ public class Caret : MonoBehaviour
     private bool empty;
 
     /// <summary>Boolean to determine whether or not to use the CheckForReset Coroutine.</summary>
-    private bool debugCheck = false;
+    private bool debugCheck = true;
 
     /// <summary>
     /// An approximate value to convert spacing from TMPro values to default font space values.
@@ -58,6 +58,9 @@ public class Caret : MonoBehaviour
 
     private WaitForSeconds debugDelay = new WaitForSeconds(3.0f);
 
+    private IEnumerator blinkRoutine;
+    private IEnumerator debugRoutine;
+
     /// <summary>
     /// The string that should replace the vertical line as the caret in the TMPro InputField.
     /// Default: "_" (underscore)
@@ -77,13 +80,23 @@ public class Caret : MonoBehaviour
 
     #region Methods
 
+    /// <summary>
+    /// Assign the coroutines in Awake so that
+    /// StopRoutine actually does something.
+    /// </summary>
+    void Awake()
+    {
+        blinkRoutine = Blink();
+        debugRoutine = CheckForReset();
+    }
+
     /// <summary> Run when the command input panel is activated. </summary>
     void OnEnable()
     {
         originPos = rect.anchoredPosition;
-        StartCoroutine(Blink());
+        StartCoroutine(blinkRoutine);
         if(debugCheck)
-            StartCoroutine(CheckForReset());
+            StartCoroutine(debugRoutine);
         initialized = true;
     }
 
@@ -91,11 +104,10 @@ public class Caret : MonoBehaviour
     private void OnDisable()
     {
         Reset();
-        StopCoroutine(Blink());
+        StopCoroutine(blinkRoutine);
         if(debugCheck)
-            StopCoroutine(CheckForReset());
+            StopCoroutine(debugRoutine);
     }
-
 
     /// <summary> Reset the caret to its original position. </summary>
     public void Reset()
@@ -114,12 +126,15 @@ public class Caret : MonoBehaviour
             float xAdv = 0f;
 
             //If the character count is greater than the max & input is not backspace, then return.
-            if (inputText.textInfo.characterCount >= inputField.characterLimit + 1 && !Input.inputString.Equals(bkspace, StringComparison.Ordinal))
+            if (inputText.textInfo.characterCount >= inputField.characterLimit + 1 &&
+                !Input.inputString.Equals(bkspace, StringComparison.Ordinal))
                 return;
 
             //Using double backspace because sometimes it inputs 2 if you hold backspace.
             //Possible problem: What if it inputs more than 2 in a certain instance? (i.e. frame lag)
-            else if (Input.inputString.Equals(bkspace, StringComparison.Ordinal) || Input.inputString.Equals(bkspaceDbl, StringComparison.Ordinal))
+            //Suggested fix if this is an issue, use regex to account for any number of backspace characters.
+            else if (Input.inputString.Equals(bkspace, StringComparison.Ordinal) ||
+                     Input.inputString.Equals(bkspaceDbl, StringComparison.Ordinal))
             {
                 //If the user has pressed backspace, check if the input field
                 //has any text in it.
@@ -137,9 +152,10 @@ public class Caret : MonoBehaviour
                 }
             }
 
-            //If the user presses a key that inputs a character, and the limit has not been reachedm
+            //If the user presses a key that inputs a character, and the limit has not been reached,
             //then attempt to move the caret to the right.
-            else if (Input.inputString.Length > 0 && !(inputText.textInfo.characterCount >= inputField.characterLimit + 1))
+            else if (Input.inputString.Length > 0 && !(inputText.textInfo.characterCount >=
+                     inputField.characterLimit + 1))
             {
                 //Try to move it to the right, using this in case of weird behaviour.
                 try
@@ -171,8 +187,8 @@ public class Caret : MonoBehaviour
                 //If the Escape key is pressed, then stop the coroutines.
                 if (Input.GetKey(KeyCode.Escape))
                 {
-                    StopCoroutine(Blink());
-                    StopCoroutine(CheckForReset());
+                    StopCoroutine(blinkRoutine);
+                    StopCoroutine(debugRoutine);
                 }
 
                 //Reset the location of the caret.
@@ -208,7 +224,8 @@ public class Caret : MonoBehaviour
     }
 
     ///<summary> 
-    ///Coroutine that checks if string is empty every 3 seconds.
+    ///Coroutine that checks if string is empty every
+    ///interval of debugDelay (Default 3 seconds).
     ///If so, reset to originPos. 
     ///</summary>
     IEnumerator CheckForReset()
