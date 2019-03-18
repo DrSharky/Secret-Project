@@ -173,33 +173,33 @@ public class Computer : Interactable
             //hacking process with other keystrokes.
             else if (isHacking)
                 return;
-            else if(currentScreenType == ScreenType.EmailMenu)
-            {
-                switch (Input.inputString)
-                {
-                    case "p":
-                        commandText.text = null;
-                        break;
-                    case "n":
-                        commandText.text = null;
-                        break;
-                    case "q":
-                        commandText.text = null;
-                        ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
-                        break;
-                    case "1": case "2": case"3":case "4": case "5": case "6": case "7": case "8": case "9":
-                        commandText.text = null;
-                        emailIndex.sentInt = int.Parse(Input.inputString);
-                        emailEvent.Raise();
-                        emailIndex.Raise();
-                        emailIndex.sentInt = 0;
-                        currentScreenType = ScreenType.Email;
-                        break;
-                    default:
-                        commandText.text = null;
-                        break;
-                }
-            }
+            //else if(currentScreenType == ScreenType.EmailMenu)
+            //{
+                //switch (Input.inputString)
+                //{
+                //    case "p":
+                //        commandText.text = null;
+                //        break;
+                //    case "n":
+                //        commandText.text = null;
+                //        break;
+                //    case "q":
+                //        commandText.text = null;
+                //        ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
+                //        break;
+                //    case "1": case "2": case"3" : case "4": case "5": case "6": case "7": case "8": case "9":
+                //        commandText.text = null;
+                //        emailEvent.sentInt = int.Parse(Input.inputString);
+                //        emailEvent.Raise();
+                //        //emailIndex.Raise();
+                //        emailEvent.sentInt = 0;
+                //        currentScreenType = ScreenType.Email;
+                //        break;
+                //    default:
+                //        commandText.text = null;
+                //        break;
+                //}
+            //}
             else if(currentScreenType == ScreenType.Email)
             {
                 switch (Input.inputString)
@@ -221,7 +221,41 @@ public class Computer : Interactable
             }
             else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                if (currentScreenType == ScreenType.Password)
+                if(currentScreenType == ScreenType.Menu &&  commandText.text.Equals(CommonCompStrings.charDict[CommonCompStrings.Char.Empty], System.StringComparison.Ordinal))
+                {
+                    computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
+                    ShowErrorText();
+                    return;
+                }
+
+                if(currentScreenType == ScreenType.EmailMenu)
+                {
+                    switch (commandText.text)
+                    {
+                        case "p":
+                            commandText.text = null;
+                            break;
+                        case "n":
+                            commandText.text = null;
+                            break;
+                        case "q":
+                            commandText.text = null;
+                            ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
+                            break;
+                        case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9":
+                            emailEvent.sentInt = (int.Parse(commandText.text) - 1);
+                            commandText.text = null;
+                            emailEvent.Raise();
+                            emailEvent.sentInt = 0;
+                            currentScreenType = ScreenType.Email;
+                            break;
+                        default:
+                            commandText.text = null;
+                            break;
+                    }
+                }
+
+                else if (currentScreenType == ScreenType.Password)
                 {
                     if (!currentCommandMenu.alreadyHacked)
                         PasswordEnter(commandText.text);
@@ -332,8 +366,14 @@ public class Computer : Interactable
         ComputerCommand enteredCommand;
         string commandString = commandText.text;
 
+        if(currentScreenType == ScreenType.Error)
+        {
+            ShowMenu(currentCommandMenu);
+            return;
+        }
+
         //If user is on a display page
-        if(displayText)
+        if(currentScreenType == ScreenType.DisplayText || currentScreenType == ScreenType.Error  || currentScreenType == ScreenType.Help)
         {
             //If the user presses enter on the display page.
             if (Input.GetKey(KeyCode.Return))
@@ -341,6 +381,8 @@ public class Computer : Interactable
                 commandString = currentCommandMenu.commandText;
                 //SelectCommandText();
                 displayText = false;
+                ShowMenu(currentCommandMenu);
+                return;
             }
         }
 

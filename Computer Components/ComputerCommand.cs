@@ -10,7 +10,7 @@ public class ComputerCommand
 
     [TextArea]
     public string displayText;
-    public MessageType messageType;
+    public CompMessageType messageType;
 
     public ComputerCommand(string name)
     {
@@ -20,7 +20,7 @@ public class ComputerCommand
     public ComputerCommand()
     {
         commandText = "home";
-        messageType = MessageType.Menu;
+        messageType = CompMessageType.Menu;
     }
 }
 
@@ -34,7 +34,6 @@ public class MenuCommand : ComputerCommand
 
     [TextArea]
     public string commandsDisplayText;
-
     public string menuPanelTitle;
     public bool hackable;
     public bool alreadyHacked;
@@ -42,14 +41,14 @@ public class MenuCommand : ComputerCommand
 
     public MenuCommand(string name) : base(name)
     {
-        messageType = MessageType.Menu;
+        messageType = CompMessageType.Menu;
         subCommands = new List<ComputerCommand>();
     }
 
     public MenuCommand() : base()
     {
         commandText = "home";
-        messageType = MessageType.Menu;
+        messageType = CompMessageType.Menu;
     }
 }
 
@@ -57,6 +56,7 @@ public class MenuCommand : ComputerCommand
 public class EmailCommand : ComputerCommand
 {
     public bool read;
+    public bool showEmail;
 
     protected bool questRelated;
     public string sender;
@@ -64,7 +64,7 @@ public class EmailCommand : ComputerCommand
 
     public EmailCommand() : base()
     {
-        messageType = MessageType.Email;
+        messageType = CompMessageType.Email;
     }
 }
 
@@ -76,7 +76,7 @@ public class EmailMenuCommand : MenuCommand
     public EmailMenuCommand()
     {
         commandText = "email";
-        messageType = MessageType.EmailMenu;
+        messageType = CompMessageType.EmailMenu;
         hackable = true;
     }
 
@@ -86,7 +86,7 @@ public class EmailMenuCommand : MenuCommand
     }
 }
 
-public enum MessageType
+public enum CompMessageType
 {
     None,
     Email,
