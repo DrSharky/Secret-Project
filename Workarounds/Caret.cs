@@ -56,7 +56,7 @@ public class Caret : MonoBehaviour
 
     private WaitForSeconds blinkDelay = new WaitForSeconds(0.5f);
 
-    private WaitForSeconds debugDelay = new WaitForSeconds(3.0f);
+    private WaitForSeconds debugDelay = new WaitForSeconds(1.0f);
 
     private IEnumerator blinkRoutine;
     private IEnumerator debugRoutine;
@@ -187,8 +187,8 @@ public class Caret : MonoBehaviour
                 //If the Escape key is pressed, then stop the coroutines.
                 if (Input.GetKey(KeyCode.Escape))
                 {
-                    StopCoroutine(blinkRoutine);
-                    StopCoroutine(debugRoutine);
+                    //StopCoroutine(blinkRoutine);
+                    //StopCoroutine(debugRoutine);
                 }
 
                 //Reset the location of the caret.

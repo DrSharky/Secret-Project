@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 public class CommandInput : MonoBehaviour
 {
@@ -146,8 +147,10 @@ public class CommandInput : MonoBehaviour
         tmInputField.ActivateInputField();
     }
 
+    //TODO: Update this when returning to email Menu
     void GetEmailCommandHeader()
     {
-        emailConfig.headerString = emailInfo.GetEmailCount() + " total emails, choose 1..." + emailInfo.GetEmailCount() + "\n[n]ext or [p]rev for more emails\n[q]uit to exit: ";
+        int emailCount = emailInfo.Commands.Where(x => x.showEmail).Count();
+        emailConfig.headerString = emailCount + " total emails, choose 1..." + emailCount + "\n[n]ext or [p]rev for more emails\n[q]uit to exit: ";
     }
 }

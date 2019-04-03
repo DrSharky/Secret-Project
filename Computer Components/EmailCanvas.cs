@@ -26,10 +26,28 @@ public class EmailCanvas : MonoBehaviour
     private EmailCommand currentEmail;
     private CanvasGroup emailParentCanvas;
     private List<EmailTextObject> emailTextObjects = new List<EmailTextObject>();
+    private List<EmailCommand> emailsToDisplay;
+
+    public void DeleteEmail()
+    {
+        emailCommands.Commands.Remove(currentEmail);
+
+        if(emailCommands.Commands.Count == 0)
+        {
+            SwitchState(ScreenType.EmailMenu);
+        }
+        else
+        {
+
+        }
+    }
 
     public void SelectEmail(int emailIndex)
     {
-        currentEmail = emailCommands.Commands[emailIndex];
+        if (emailIndex >= emailsToDisplay.Count)
+            return;
+
+        currentEmail = emailsToDisplay[emailIndex];
         currentEmail.read = true;
         emailDisplayText.text = currentEmail.displayText;
         SwitchState(ScreenType.Email);
@@ -64,9 +82,6 @@ public class EmailCanvas : MonoBehaviour
                 break;
         }
     }
-
-    //TODO: Change so that text from email body can be used in the email text area.
-    //Maybe create a second text area for displaying body of emails.
 
     void CreateEmailObjects()
     {
@@ -110,71 +125,50 @@ public class EmailCanvas : MonoBehaviour
         Vector3 emailListPos = emailMenuCanvas.transform.position;
         Quaternion emailListRot = emailMenuCanvas.transform.rotation;
 
-        List<EmailCommand> emailsToDisplay = emailCommands.Commands.Where((f, i) => i >= startIndex && f.showEmail).ToList();
+        emailsToDisplay = emailCommands.Commands.Where((f, i) => i >= startIndex && f.showEmail).ToList();
 
-        for(int j = 0; j < 10 && j < emailsToDisplay.Count; j++)
+        for(int j = 0; j < emailTextObjects.Count; j++)
         {
-            string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (j + 1) +
-                                CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
-            subjectText.text = emailsToDisplay[j].subject;
-            emailsToDisplay[j].commandText = (j+1).ToString();
 
             Text emailNumText = emailTextObjects[j].numberText.GetComponentInChildren<Text>();
             Text emailSub = emailTextObjects[j].subjectText.GetComponent<Text>();
             RawImage numberImg = emailTextObjects[j].numberText.GetComponent<RawImage>();
-            emailNumText.text = emailIndex;
-            emailSub.text = emailsToDisplay[j].subject;
 
-            if (!emailsToDisplay[j].read)
+            if (j < emailsToDisplay.Count)
             {
-                numberImg.color = Color.white;
-                emailNumText.color = Color.black;
+                string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (j + 1) +
+                                    CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
+                subjectText.text = emailsToDisplay[j].subject;
+                emailsToDisplay[j].commandText = (j + 1).ToString();
+
+                emailNumText.text = emailIndex;
+                emailSub.text = emailsToDisplay[j].subject;
+
+                if (!emailsToDisplay[j].read)
+                {
+                    numberImg.color = Color.white;
+                    emailNumText.color = Color.black;
+                }
+                else
+                {
+                    numberImg.color = Color.black;
+                    emailNumText.color = Color.white;
+                }
             }
             else
             {
-                numberImg.color = Color.black;
-                emailNumText.color = Color.white;
+                emailNumText.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
+                emailSub.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
+                numberImg.color = new Color(0, 0, 0, 0);
             }
-
+            
         }
 
+        List<string> testTextList = new List<string>();
 
-        //for (int i = 0; i < emailCommands.Commands.Count; i++)
-        //{
-        //    string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (i + 1) +
-        //                        CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
-        //    subjectText.text = emailCommands.Commands[i].subject;
-        //    Text emailNumText;
-        //    Text emailSub;
-        //    GameObject numObjCopy;
-
-        //    numObjCopy = Instantiate(numberObj, emailMenuCanvas.transform);
-
-        //    RectTransform numRect = numObjCopy.GetComponent<RectTransform>();
-        //    RawImage numberImg = numObjCopy.GetComponent<RawImage>();
-
-        //    numRect.anchorMin = new Vector2(0f, 1f);
-        //    numRect.anchorMax = new Vector2(0f, 1f);
-
-        //    numRect.anchoredPosition +=
-        //        new Vector2(0f, -numRect.rect.height * (i + 1));
-
-        //    emailSub = Instantiate(subjectText, emailMenuCanvas.transform);
-
-        //    emailSub.rectTransform.anchorMin = new Vector2(0f, 1f);
-        //    emailSub.rectTransform.anchorMax = new Vector2(0f, 1f);
-
-        //    emailSub.rectTransform.anchoredPosition +=
-        //        new Vector2(0f, -emailSub.rectTransform.rect.height * (i + 1));
-
-        //    emailNumText = numObjCopy.transform.GetComponentInChildren<Text>();
-        //    emailNumText.text = emailIndex;
-
-        //    if (!emailCommands.Commands[i].read)
-        //    {
-        //        numberImg.color = Color.white;
-        //        emailNumText.color = Color.black;
-        //    }
-        //}
+        for (int k = 0; k < emailTextObjects.Count; k++)
+        {
+            testTextList.Add(emailTextObjects[k].subjectText.GetComponent<Text>().text);
+        }
     }
 }

@@ -95,7 +95,8 @@ public class Computer : Interactable
     public List<GameEvent> menuScreens;
     public GameEvent errorString;
     public GameEvent emailEvent;
-    public GameEvent emailIndex;
+    //public GameEvent emailIndex;
+    private int emailIndex;
 
     #endregion
 
@@ -157,6 +158,8 @@ public class Computer : Interactable
                         else
                             ShowMenu(menus.Commands[0]);
                         break;
+                    //Note: pressing Esc on Email menu doesn't work in editor, but works in a build.
+                    //This isn't broken, it just has weird behaviour in play mode.
                     case ScreenType.Email:
                         ShowEmailMenu();
                         break;
@@ -173,46 +176,36 @@ public class Computer : Interactable
             //hacking process with other keystrokes.
             else if (isHacking)
                 return;
-            //else if(currentScreenType == ScreenType.EmailMenu)
-            //{
-                //switch (Input.inputString)
-                //{
-                //    case "p":
-                //        commandText.text = null;
-                //        break;
-                //    case "n":
-                //        commandText.text = null;
-                //        break;
-                //    case "q":
-                //        commandText.text = null;
-                //        ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
-                //        break;
-                //    case "1": case "2": case"3" : case "4": case "5": case "6": case "7": case "8": case "9":
-                //        commandText.text = null;
-                //        emailEvent.sentInt = int.Parse(Input.inputString);
-                //        emailEvent.Raise();
-                //        //emailIndex.Raise();
-                //        emailEvent.sentInt = 0;
-                //        currentScreenType = ScreenType.Email;
-                //        break;
-                //    default:
-                //        commandText.text = null;
-                //        break;
-                //}
-            //}
             else if(currentScreenType == ScreenType.Email)
             {
                 switch (Input.inputString)
                 {
+                    case "q":
+                        ShowEmailMenu();
+                        break;
                     case "d":
-                        emailMenuScreen.Raise();
-                        commandText.text = null;
+                        emailInfo.Commands[emailIndex].showEmail = false;
+                        ShowEmailMenu();
                         break;
                     case "n":
                         commandText.text = null;
+                        if (emailIndex < emailInfo.Commands.Count - 1)
+                        {
+                            emailIndex++;
+                            emailEvent.sentInt = emailIndex;
+                            emailEvent.Raise();
+                            emailEvent.sentInt = 0;
+                        }
                         break;
                     case "p":
                         commandText.text = null;
+                        if (emailIndex > 0)
+                        {
+                            emailIndex--;
+                            emailEvent.sentInt = emailIndex;
+                            emailEvent.Raise();
+                            emailEvent.sentInt = 0;
+                        }
                         break;
                     default:
                         commandText.text = null;
@@ -221,7 +214,7 @@ public class Computer : Interactable
             }
             else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                if(currentScreenType == ScreenType.Menu &&  commandText.text.Equals(CommonCompStrings.charDict[CommonCompStrings.Char.Empty], System.StringComparison.Ordinal))
+                if(currentScreenType == ScreenType.Menu && commandText.text.Equals(CommonCompStrings.charDict[CommonCompStrings.Char.Empty], System.StringComparison.Ordinal))
                 {
                     computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
                     ShowErrorText();
@@ -242,19 +235,20 @@ public class Computer : Interactable
                             commandText.text = null;
                             ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
                             break;
-                        case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9":
-                            emailEvent.sentInt = (int.Parse(commandText.text) - 1);
-                            commandText.text = null;
-                            emailEvent.Raise();
-                            emailEvent.sentInt = 0;
-                            currentScreenType = ScreenType.Email;
-                            break;
+                        //Using default case for numbers since we aren't sure the limits of the numbers.
+                        //Use default and try to parse the number if possible.
                         default:
+                            if(int.TryParse(commandText.text, out emailIndex))
+                            {
+                                emailEvent.sentInt = emailIndex - 1;
+                                emailEvent.Raise();
+                                emailEvent.sentInt = 0;
+                                currentScreenType = ScreenType.Email;
+                            }
                             commandText.text = null;
                             break;
                     }
                 }
-
                 else if (currentScreenType == ScreenType.Password)
                 {
                     if (!currentCommandMenu.alreadyHacked)
@@ -462,11 +456,9 @@ public class Computer : Interactable
     #region Show Menu Methods
     void ShowEmailMenu()
     {
-        //menuScreens.Find(x => x.sentString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Email]).Raise();
         currentScreenType = ScreenType.EmailMenu;
+        commandText.text = null;
         emailMenuScreen.Raise();
-
-        //TODO: --ENTER EMAIL MENU IMPLEMENTATION HERE--
     }
 
     //Display the correct menu & commands.
@@ -484,9 +476,7 @@ public class Computer : Interactable
     void ShowHacking()
     {
         currentScreenType = ScreenType.Password;
-
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Error]);
-
         passwordScreen.Raise();
     }
 
