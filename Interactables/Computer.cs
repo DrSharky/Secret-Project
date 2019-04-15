@@ -95,8 +95,10 @@ public class Computer : Interactable
     public List<GameEvent> menuScreens;
     public GameEvent errorString;
     public GameEvent emailEvent;
-    //public GameEvent emailIndex;
+    public GameEvent emailPage;
+    public GameEvent emailDelete;
     private int emailIndex;
+    private int emailPageIndex = 0;
 
     #endregion
 
@@ -158,7 +160,7 @@ public class Computer : Interactable
                         else
                             ShowMenu(menus.Commands[0]);
                         break;
-                    //Note: pressing Esc on Email menu doesn't work in editor, but works in a build.
+                    //Note: pressing Esc in Email doesn't work in editor, but works in a build.
                     //This isn't broken, it just has weird behaviour in play mode.
                     case ScreenType.Email:
                         ShowEmailMenu();
@@ -184,7 +186,9 @@ public class Computer : Interactable
                         ShowEmailMenu();
                         break;
                     case "d":
-                        emailInfo.Commands[emailIndex].showEmail = false;
+                        emailDelete.sentInt = emailIndex - 1;
+                        emailDelete.Raise();
+                        emailDelete.sentInt = 0;
                         ShowEmailMenu();
                         break;
                     case "n":
@@ -192,6 +196,8 @@ public class Computer : Interactable
                         if (emailIndex < emailInfo.Commands.Count - 1)
                         {
                             emailIndex++;
+                            if ((emailIndex % 10) == 0)
+                                emailPageIndex += 10;
                             emailEvent.sentInt = emailIndex;
                             emailEvent.Raise();
                             emailEvent.sentInt = 0;
@@ -202,6 +208,8 @@ public class Computer : Interactable
                         if (emailIndex > 0)
                         {
                             emailIndex--;
+                            if ((emailIndex - 9) % 10 == 0)
+                                emailPageIndex = 0;
                             emailEvent.sentInt = emailIndex;
                             emailEvent.Raise();
                             emailEvent.sentInt = 0;
@@ -226,13 +234,29 @@ public class Computer : Interactable
                     switch (commandText.text)
                     {
                         case "p":
+                            if (emailPageIndex < 10)
+                                break;
+                            else
+                                emailPageIndex -= 10;
+                            emailPage.sentInt = emailPageIndex;
                             commandText.text = null;
+                            emailPage.Raise();
+                            emailPage.sentInt = 0;
                             break;
                         case "n":
+                            if ((emailPageIndex + 10) > emailInfo.GetEmailCount())
+                                break;
+                            else
+                                emailPageIndex += 10;
                             commandText.text = null;
+                            emailPage.sentInt = emailPageIndex;
+                            emailPage.Raise();
+                            emailPage.sentInt = 0;
                             break;
                         case "q":
                             commandText.text = null;
+                            emailIndex = 0;
+                            emailPageIndex = 0;
                             ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
                             break;
                         //Using default case for numbers since we aren't sure the limits of the numbers.
@@ -244,6 +268,12 @@ public class Computer : Interactable
                                 emailEvent.Raise();
                                 emailEvent.sentInt = 0;
                                 currentScreenType = ScreenType.Email;
+                            }
+                            else
+                            {
+                                emailPage.sentInt = emailPageIndex;
+                                emailPage.Raise();
+                                emailPage.sentInt = 0;
                             }
                             commandText.text = null;
                             break;

@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using System.Linq;
 
 [CreateAssetMenu(menuName = "Email Command List")]
 public class EmailCommandList : SerializedScriptableObject
@@ -15,7 +15,12 @@ public class EmailCommandList : SerializedScriptableObject
 
     public int GetEmailCount()
     {
-        return Commands.Count;
+        return Commands.Where(f => f.showEmail).ToList().Count;
+    }
+
+    public List<EmailCommand> GetDisplayEmails()
+    {
+        return Commands.Where((f) => f.showEmail).ToList();
     }
 
     public int GetUnreadCount()

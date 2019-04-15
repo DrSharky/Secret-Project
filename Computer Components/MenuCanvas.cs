@@ -22,10 +22,7 @@ public class MenuCanvas : MonoBehaviour
     void Start()
     {
         canvasGroup = GetComponent<CanvasGroup>();
-        emailText = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
-            CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] +
-            emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
-        emailTitleText.text = emailText;
+        SetEmailText();
     }
 
     public void SwitchMenu(string menu)
@@ -35,6 +32,15 @@ public class MenuCanvas : MonoBehaviour
         menuListText.text = currentMenu.displayText;
         commandListText.text = currentMenu.commandsDisplayText;
         OnMenuSwitch(menu);
+        SetEmailText();
+    }
+
+    public void SetEmailText()
+    {
+        emailText = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
+            CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] +
+            emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
+        emailTitleText.text = emailText;
     }
 
     public void SwitchState(ScreenType screenType)

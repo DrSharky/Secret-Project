@@ -105,7 +105,6 @@ public class CommandInput : MonoBehaviour
             case ScreenType.Help:
                 caretObject.SetActive(false);
                 CommandSetup(displayConfig);
-                SelectCommandText();
                 break;
             //case 4 for email text.
             case ScreenType.Email:
@@ -141,7 +140,7 @@ public class CommandInput : MonoBehaviour
         caretScript.Reset();
     }
 
-    void SelectCommandText()
+    public void SelectCommandText()
     {
         tmInputField.Select();
         tmInputField.ActivateInputField();

@@ -28,18 +28,13 @@ public class EmailCanvas : MonoBehaviour
     private List<EmailTextObject> emailTextObjects = new List<EmailTextObject>();
     private List<EmailCommand> emailsToDisplay;
 
-    public void DeleteEmail()
+    public void DeleteEmail(int index)
     {
-        emailCommands.Commands.Remove(currentEmail);
+        emailsToDisplay[index].showEmail = false;
+        emailsToDisplay.Remove(emailsToDisplay[index]);
 
         if(emailCommands.Commands.Count == 0)
-        {
             SwitchState(ScreenType.EmailMenu);
-        }
-        else
-        {
-
-        }
     }
 
     public void SelectEmail(int emailIndex)
@@ -114,7 +109,7 @@ public class EmailCanvas : MonoBehaviour
         }
     }
 
-    void CreateEmailText(int startIndex = 0)
+    public void CreateEmailText(int startIndex = 0)
     {
         //Need to create 2 objects for each email in list.
         //1 for the number of the email in the list,
@@ -136,7 +131,7 @@ public class EmailCanvas : MonoBehaviour
 
             if (j < emailsToDisplay.Count)
             {
-                string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (j + 1) +
+                string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (startIndex + j + 1) +
                                     CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
                 subjectText.text = emailsToDisplay[j].subject;
                 emailsToDisplay[j].commandText = (j + 1).ToString();
