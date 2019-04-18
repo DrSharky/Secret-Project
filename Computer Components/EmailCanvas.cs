@@ -27,22 +27,28 @@ public class EmailCanvas : MonoBehaviour
     private CanvasGroup emailParentCanvas;
     private List<EmailTextObject> emailTextObjects = new List<EmailTextObject>();
     private List<EmailCommand> emailsToDisplay;
+    private Dictionary<int, EmailCommand> emailDict = new Dictionary<int, EmailCommand>();
+    private int pageIndex;
 
     public void DeleteEmail(int index)
     {
-        emailsToDisplay[index].showEmail = false;
-        emailsToDisplay.Remove(emailsToDisplay[index]);
+        //emailsToDisplay[index].showEmail = false;
+        //emailsToDisplay.Remove(emailsToDisplay[index]);
+        emailDict[index].showEmail = false;
+        emailDict.Remove(index);
 
-        if(emailCommands.Commands.Count == 0)
-            SwitchState(ScreenType.EmailMenu);
+        CreateEmailText(index - (index % 10));
+        SwitchState(ScreenType.EmailMenu);
     }
 
     public void SelectEmail(int emailIndex)
     {
-        if (emailIndex >= emailsToDisplay.Count)
+        if (emailIndex >= (pageIndex + 10))
             return;
 
-        currentEmail = emailsToDisplay[emailIndex];
+        emailIndex -= pageIndex;
+
+        currentEmail = emailsToDisplay[emailIndex-1];
         currentEmail.read = true;
         emailDisplayText.text = currentEmail.displayText;
         SwitchState(ScreenType.Email);
@@ -53,6 +59,11 @@ public class EmailCanvas : MonoBehaviour
         emailParentCanvas = GetComponent<CanvasGroup>();
         if (hasEmail)
             CreateEmailObjects();
+
+        for(int i = 0; i < emailCommands.Commands.Count; i++)
+        {
+            emailDict.Add(i+1, emailCommands.Commands[i]);
+        }
     }
 
     public void SwitchState(ScreenType state)
@@ -111,6 +122,8 @@ public class EmailCanvas : MonoBehaviour
 
     public void CreateEmailText(int startIndex = 0)
     {
+        pageIndex = startIndex;
+
         //Need to create 2 objects for each email in list.
         //1 for the number of the email in the list,
         //and the second for the email subject text.
@@ -120,7 +133,8 @@ public class EmailCanvas : MonoBehaviour
         Vector3 emailListPos = emailMenuCanvas.transform.position;
         Quaternion emailListRot = emailMenuCanvas.transform.rotation;
 
-        emailsToDisplay = emailCommands.Commands.Where((f, i) => i >= startIndex && f.showEmail).ToList();
+        emailsToDisplay = emailDict.Values.Where((f, i) => i >= startIndex && f.showEmail).ToList();
+        //emailsToDisplay = emailCommands.Commands.Where((f, i) => i >= startIndex && f.showEmail).ToList();
 
         for(int j = 0; j < emailTextObjects.Count; j++)
         {
@@ -134,7 +148,8 @@ public class EmailCanvas : MonoBehaviour
                 string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (startIndex + j + 1) +
                                     CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
                 subjectText.text = emailsToDisplay[j].subject;
-                emailsToDisplay[j].commandText = (j + 1).ToString();
+
+                //emailsToDisplay[j].commandText = (j + 1).ToString();
 
                 emailNumText.text = emailIndex;
                 emailSub.text = emailsToDisplay[j].subject;

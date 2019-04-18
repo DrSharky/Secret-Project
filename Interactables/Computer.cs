@@ -186,7 +186,7 @@ public class Computer : Interactable
                         ShowEmailMenu();
                         break;
                     case "d":
-                        emailDelete.sentInt = emailIndex - 1;
+                        emailDelete.sentInt = emailIndex;
                         emailDelete.Raise();
                         emailDelete.sentInt = 0;
                         ShowEmailMenu();
@@ -264,7 +264,7 @@ public class Computer : Interactable
                         default:
                             if(int.TryParse(commandText.text, out emailIndex))
                             {
-                                emailEvent.sentInt = emailIndex - 1;
+                                emailEvent.sentInt = emailIndex;
                                 emailEvent.Raise();
                                 emailEvent.sentInt = 0;
                                 currentScreenType = ScreenType.Email;
