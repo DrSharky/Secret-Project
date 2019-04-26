@@ -133,11 +133,12 @@ public class CommandInput : MonoBehaviour
             commandCanvas.alpha = 1;
     }
 
-    void ResetCommandText()
+    public void ResetCommandText()
     {
         tmInputField.interactable = true;
         tmInputField.text = null;
         caretScript.Reset();
+        SelectCommandText();
     }
 
     public void SelectCommandText()

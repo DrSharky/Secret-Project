@@ -234,7 +234,7 @@ public class Caret : MonoBehaviour
         {
             if (inputText.text.Length == 1)
                 rect.anchoredPosition = originPos;
-            yield return debugDelay;
+            yield return null;
         }
     }
 

@@ -26,29 +26,51 @@ public class EmailCanvas : MonoBehaviour
     private EmailCommand currentEmail;
     private CanvasGroup emailParentCanvas;
     private List<EmailTextObject> emailTextObjects = new List<EmailTextObject>();
-    private List<EmailCommand> emailsToDisplay;
-    private Dictionary<int, EmailCommand> emailDict = new Dictionary<int, EmailCommand>();
+    //private List<EmailCommand> emailsToDisplay;
+    private List<EmailCommand> emailShowList = new List<EmailCommand>();
     private int pageIndex;
 
     public void DeleteEmail(int index)
     {
-        //emailsToDisplay[index].showEmail = false;
-        //emailsToDisplay.Remove(emailsToDisplay[index]);
-        emailDict[index].showEmail = false;
-        emailDict.Remove(index);
+        if (emailShowList.Count == index && index == pageIndex + 1 && index != 1)
+            pageIndex -= 10;
+        emailShowList[index-1].showEmail = false;
+        emailShowList.RemoveAt(index-1);
 
-        CreateEmailText(index - (index % 10));
+        CreateEmailText(pageIndex);
         SwitchState(ScreenType.EmailMenu);
     }
 
     public void SelectEmail(int emailIndex)
     {
-        if (emailIndex >= (pageIndex + 10))
+        //if (emailIndex > (pageIndex + 10)
+        //    || emailIndex < pageIndex
+        //    || emailIndex <= 0)
+        //    return;
+        if (emailIndex <= 0 || emailIndex > emailShowList.Count)
+        {
+            SwitchState(ScreenType.EmailMenu);
             return;
+            //Press 1 then p, returns to menu but doesn't enter cmd input properly.
+            //Also figure out why pressing 'N'ext on second to last email (#12) doesn't work.
+        }
 
-        emailIndex -= pageIndex;
+        else if (emailIndex <= pageIndex)
+        {
+            pageIndex -= 10;
+            CreateEmailText(pageIndex);
+        }
+        else if (pageIndex + 10 < emailIndex)
+        {
+            pageIndex += 10;
+            CreateEmailText(pageIndex);
+        }
 
-        currentEmail = emailsToDisplay[emailIndex-1];
+
+        //emailIndex -= pageIndex;
+
+        //currentEmail = emailsToDisplay[emailIndex-1];
+        currentEmail = emailShowList[emailIndex - 1];
         currentEmail.read = true;
         emailDisplayText.text = currentEmail.displayText;
         SwitchState(ScreenType.Email);
@@ -62,7 +84,7 @@ public class EmailCanvas : MonoBehaviour
 
         for(int i = 0; i < emailCommands.Commands.Count; i++)
         {
-            emailDict.Add(i+1, emailCommands.Commands[i]);
+            emailShowList.Add(emailCommands.Commands[i]);
         }
     }
 
@@ -79,12 +101,13 @@ public class EmailCanvas : MonoBehaviour
                 emailMenuCanvas.alpha = 1;
                 emailDisplayCanvas.alpha = 0;
                 emailParentCanvas.alpha = 1;
-                CreateEmailText();
+                CreateEmailText(pageIndex);
                 break;
             default:
                 emailMenuCanvas.alpha = 0;
                 emailDisplayCanvas.alpha = 0;
                 emailParentCanvas.alpha = 0;
+                pageIndex = 0;
                 break;
         }
     }
@@ -133,28 +156,28 @@ public class EmailCanvas : MonoBehaviour
         Vector3 emailListPos = emailMenuCanvas.transform.position;
         Quaternion emailListRot = emailMenuCanvas.transform.rotation;
 
-        emailsToDisplay = emailDict.Values.Where((f, i) => i >= startIndex && f.showEmail).ToList();
-        //emailsToDisplay = emailCommands.Commands.Where((f, i) => i >= startIndex && f.showEmail).ToList();
+        //Clear list in case of page switching.
+        //This way the list should always have a max of 10.
+        //emailsToDisplay = new List<EmailCommand>();
+
+        //emailsToDisplay = emailShowList.Where((f, i) => i >= startIndex && f.showEmail).ToList();
 
         for(int j = 0; j < emailTextObjects.Count; j++)
         {
-
             Text emailNumText = emailTextObjects[j].numberText.GetComponentInChildren<Text>();
             Text emailSub = emailTextObjects[j].subjectText.GetComponent<Text>();
             RawImage numberImg = emailTextObjects[j].numberText.GetComponent<RawImage>();
 
-            if (j < emailsToDisplay.Count)
+            if (pageIndex + j < emailShowList.Count)
             {
                 string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (startIndex + j + 1) +
                                     CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
-                subjectText.text = emailsToDisplay[j].subject;
-
-                //emailsToDisplay[j].commandText = (j + 1).ToString();
+                subjectText.text = emailShowList[startIndex+j].subject;
 
                 emailNumText.text = emailIndex;
-                emailSub.text = emailsToDisplay[j].subject;
+                emailSub.text = emailShowList[startIndex+j].subject;
 
-                if (!emailsToDisplay[j].read)
+                if (!emailShowList[startIndex+j].read)
                 {
                     numberImg.color = Color.white;
                     emailNumText.color = Color.black;
@@ -171,14 +194,6 @@ public class EmailCanvas : MonoBehaviour
                 emailSub.text = CommonCompStrings.charDict[CommonCompStrings.Char.Empty];
                 numberImg.color = new Color(0, 0, 0, 0);
             }
-            
-        }
-
-        List<string> testTextList = new List<string>();
-
-        for (int k = 0; k < emailTextObjects.Count; k++)
-        {
-            testTextList.Add(emailTextObjects[k].subjectText.GetComponent<Text>().text);
         }
     }
 }

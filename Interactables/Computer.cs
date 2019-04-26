@@ -18,7 +18,7 @@ public class Computer : Interactable
     public ComputerSounds computerSounds;
     #endregion
 
-    #region Menus, Commands, Emails
+    #region Menus, Commands, Emails (Scriptable objects)
     [Header("Specific Computer SOs")]
 
     //List of possible commands at the home menu.
@@ -97,6 +97,7 @@ public class Computer : Interactable
     public GameEvent emailEvent;
     public GameEvent emailPage;
     public GameEvent emailDelete;
+    public GameEvent resetInput;
     private int emailIndex;
     private int emailPageIndex = 0;
 
@@ -182,7 +183,7 @@ public class Computer : Interactable
             {
                 switch (Input.inputString)
                 {
-                    case "q":
+                    case "m":
                         ShowEmailMenu();
                         break;
                     case "d":
@@ -193,10 +194,10 @@ public class Computer : Interactable
                         break;
                     case "n":
                         commandText.text = null;
-                        if (emailIndex < emailInfo.Commands.Count - 1)
+                        if (emailIndex < emailInfo.Commands.Count)
                         {
                             emailIndex++;
-                            if ((emailIndex % 10) == 0)
+                            if (emailIndex > emailPageIndex)
                                 emailPageIndex += 10;
                             emailEvent.sentInt = emailIndex;
                             emailEvent.Raise();
@@ -205,15 +206,28 @@ public class Computer : Interactable
                         break;
                     case "p":
                         commandText.text = null;
-                        if (emailIndex > 0)
+                        if (emailIndex > 1)
                         {
                             emailIndex--;
-                            if ((emailIndex - 9) % 10 == 0)
+                            if ((emailIndex - 1) % 10 == 0)
                                 emailPageIndex = 0;
                             emailEvent.sentInt = emailIndex;
                             emailEvent.Raise();
                             emailEvent.sentInt = 0;
                         }
+                        else
+                        {
+                            currentScreenType = ScreenType.EmailMenu;
+                            ShowEmailMenu();
+                            commandText.text = null;
+                            resetInput.Raise();
+                        }
+                        break;
+                    case "q":
+                        commandText.text = null;
+                        emailIndex = 0;
+                        emailPageIndex = 0;
+                        ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
                         break;
                     default:
                         commandText.text = null;
@@ -235,7 +249,7 @@ public class Computer : Interactable
                     {
                         case "p":
                             if (emailPageIndex < 10)
-                                break;
+                                ShowEmailMenu();
                             else
                                 emailPageIndex -= 10;
                             emailPage.sentInt = emailPageIndex;
@@ -245,7 +259,7 @@ public class Computer : Interactable
                             break;
                         case "n":
                             if ((emailPageIndex + 10) > emailInfo.GetEmailCount())
-                                break;
+                                ShowEmailMenu();
                             else
                                 emailPageIndex += 10;
                             commandText.text = null;
@@ -267,6 +281,12 @@ public class Computer : Interactable
                                 emailEvent.sentInt = emailIndex;
                                 emailEvent.Raise();
                                 emailEvent.sentInt = 0;
+                                if (emailIndex <= 0 || emailIndex > emailInfo.Commands.Count)
+                                {
+                                    commandText.text = null;
+                                    resetInput.Raise();
+                                    break;
+                                }
                                 currentScreenType = ScreenType.Email;
                             }
                             else
@@ -276,6 +296,7 @@ public class Computer : Interactable
                                 emailPage.sentInt = 0;
                             }
                             commandText.text = null;
+                            resetInput.Raise();
                             break;
                     }
                 }
@@ -489,6 +510,7 @@ public class Computer : Interactable
         currentScreenType = ScreenType.EmailMenu;
         commandText.text = null;
         emailMenuScreen.Raise();
+        
     }
 
     //Display the correct menu & commands.
