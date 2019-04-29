@@ -27,7 +27,9 @@ public class CommonCompStrings
         Prefix,
         TitleYou,
         TitleNum,
-        TitleUnread
+        TitleUnread,
+        SubjectDisplay,
+        SenderDisplay
     }
 
     public enum Command
@@ -98,7 +100,9 @@ public class CommonCompStrings
         { Email.Prefix, "Email For " },
         { Email.TitleYou, "You have " },
         { Email.TitleNum, " emails, " },
-        { Email.TitleUnread, " are unread." }
+        { Email.TitleUnread, " are unread." },
+        { Email.SubjectDisplay, "(Subject) " },
+        { Email.SenderDisplay, "(From) " }
     };
 
     public static Dictionary<Command, string> cmdDict = new Dictionary<Command, string>

@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 
 public struct EmailTextObject
 {
@@ -22,6 +20,8 @@ public class EmailCanvas : MonoBehaviour
     [SerializeField] private CanvasGroup emailMenuCanvas;
     [SerializeField] private CanvasGroup emailDisplayCanvas;
     [SerializeField] private Text emailDisplayText;
+    [SerializeField] private Text displaySubjectText;
+    [SerializeField] private Text displaySenderText;
 
     private EmailCommand currentEmail;
     private CanvasGroup emailParentCanvas;
@@ -43,16 +43,10 @@ public class EmailCanvas : MonoBehaviour
 
     public void SelectEmail(int emailIndex)
     {
-        //if (emailIndex > (pageIndex + 10)
-        //    || emailIndex < pageIndex
-        //    || emailIndex <= 0)
-        //    return;
         if (emailIndex <= 0 || emailIndex > emailShowList.Count)
         {
             SwitchState(ScreenType.EmailMenu);
             return;
-            //Press 1 then p, returns to menu but doesn't enter cmd input properly.
-            //Also figure out why pressing 'N'ext on second to last email (#12) doesn't work.
         }
 
         else if (emailIndex <= pageIndex)
@@ -73,6 +67,10 @@ public class EmailCanvas : MonoBehaviour
         currentEmail = emailShowList[emailIndex - 1];
         currentEmail.read = true;
         emailDisplayText.text = currentEmail.displayText;
+        displaySenderText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.SenderDisplay] + 
+                                 currentEmail.sender;
+        displaySubjectText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.SubjectDisplay] +
+                                 currentEmail.subject;
         SwitchState(ScreenType.Email);
     }
 

@@ -3,7 +3,18 @@
 public class Radio : Interactable
 {
     public AudioSource radioShow;
+    public bool startOn = true;
     private bool initialized = false;
+
+    void Start()
+    {
+        if(startOn)
+        {
+            radioShow.Play();
+            initialized = true;
+            radioShow.volume = 0.12f;
+        }
+    }
 
     public override void Activate()
     {

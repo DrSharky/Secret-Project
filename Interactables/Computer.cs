@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 //TODO: Add functionality for audio source. - only email audio stuff not done.
 //TODO: Add logic for email, separate menu type. (SO)
@@ -197,11 +196,16 @@ public class Computer : Interactable
                         if (emailIndex < emailInfo.Commands.Count)
                         {
                             emailIndex++;
-                            if (emailIndex > emailPageIndex)
-                                emailPageIndex += 10;
                             emailEvent.sentInt = emailIndex;
                             emailEvent.Raise();
                             emailEvent.sentInt = 0;
+                        }
+                        else
+                        {
+                            currentScreenType = ScreenType.EmailMenu;
+                            ShowEmailMenu();
+                            commandText.text = null;
+                            resetInput.Raise();
                         }
                         break;
                     case "p":

@@ -61,11 +61,15 @@ public class TitleCanvas : MonoBehaviour
             case ScreenType.DisplayText:
                 titleText.text = currentMenu.menuTitle;
                 subtitleText.text = currentMenu.menuSubtitle;
+                canvasGroup.alpha = 1;
                 break;
             case ScreenType.Email:
+                canvasGroup.alpha = 0;
+                break;
             case ScreenType.EmailMenu:
                 titleText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.Prefix] + emailInfo.accountName;
                 ResetSubtitle();
+                canvasGroup.alpha = 1;
                 break;
             case ScreenType.Help:
                 titleText.text = CommonCompStrings.helpDict[CommonCompStrings.Help.Title];
