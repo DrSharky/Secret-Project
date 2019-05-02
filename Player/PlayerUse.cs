@@ -2,6 +2,8 @@
 
 public class PlayerUse : MonoBehaviour
 {
+    public Transform physObjParent;
+
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
     private int layerMask = 1024;
     private Interactable interactableObject;
@@ -27,11 +29,26 @@ public class PlayerUse : MonoBehaviour
                     if (interactableObject.freezePlayer)
                         RigidbodyFirstPersonController.frozen = true;
 
-                    EventManager.TriggerEvent("Activate" + interactableObject.gameObject.name);
+                    if(interactableObject.GetType() == typeof(PhysObj))
+                    {
+                        PhysObj physObject = (PhysObj)interactableObject;
+                        if (!physObject.playerCarrying)
+                            EventManager.TriggerEvent("Activate" + interactableObject.gameObject.name);
+                        else
+                            EventManager.TriggerEvent("Drop" + interactableObject.gameObject.name);
+                    }
+                    else
+                        EventManager.TriggerEvent("Activate" + interactableObject.gameObject.name);
                 }
             }
             else
             {
+                if (physObjParent.childCount > 0)
+                {
+                    PhysObj heldObj = physObjParent.GetChild(0).gameObject.GetComponent<PhysObj>();
+                    heldObj.DropLogic();
+                }
+
                 //Debug.DrawRay(playerCam.position, playerCam.forward*2, Color.yellow, 10.0f);
             }
         }

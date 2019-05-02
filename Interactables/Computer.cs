@@ -400,6 +400,10 @@ public class Computer : Interactable
             displayScreen.Raise();
             passwordSuccScreen.Raise();
         }
+        else if (enteredPassword.Equals(CommonCompStrings.charDict[CommonCompStrings.Char.Empty], System.StringComparison.Ordinal))
+        {
+            ShowMenu(menus.Commands.Find(x => x.commandText.Equals("home", System.StringComparison.Ordinal)));
+        }
         //Password failed.
         else
         {
