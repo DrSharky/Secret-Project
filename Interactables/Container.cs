@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 
-//TODO: Edit Container class to check for when the player stops using the container.
-//This is why the MonoBehaviour class is included in inheritance here.
-
 /// <summary>
 /// Class to define any object that acts as storage for items.
 /// </summary>

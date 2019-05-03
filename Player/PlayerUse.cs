@@ -1,14 +1,19 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using System.Linq;
 
 public class PlayerUse : MonoBehaviour
 {
     public Transform physObjParent;
+
+    public PlayerInventory playerInventory;
 
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
     private int layerMask = 1024;
     private Interactable interactableObject;
     private string useString = "Use";
     private string interactableString = "Interactable";
+    private string inventoryString = "InventoryObj";
 
     void Update()
     {
@@ -17,7 +22,7 @@ public class PlayerUse : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(transform.position, transform.forward, out hit, 2.0f) &&
-                (hit.collider.gameObject.tag.Equals(interactableString, System.StringComparison.Ordinal)))
+                hit.collider.gameObject.tag.Equals(interactableString, System.StringComparison.Ordinal))
             {
                 GameObject intGO = hit.collider.gameObject;
                 interactableObject = intGO.GetComponent<Interactable>();
@@ -39,6 +44,28 @@ public class PlayerUse : MonoBehaviour
                     }
                     else
                         EventManager.TriggerEvent("Activate" + interactableObject.gameObject.name);
+                }
+            }
+            else if (Physics.Raycast(transform.position, transform.forward, out hit, 2.0f) &&
+                      hit.collider.gameObject.tag.Equals(inventoryString, System.StringComparison.Ordinal))
+            {
+                GameObject invGO = hit.collider.gameObject;
+                try
+                {
+                    InventoryObject objToAdd = hit.collider.gameObject.GetComponent<InventoryObjectScript>().inventoryObj;
+                    if (playerInventory.inventory.Contains(objToAdd))
+                        playerInventory.inventory.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
+                    else
+                    {
+                        objToAdd.heldQuantity = 1;
+                        playerInventory.inventory.Add(objToAdd);
+                    }
+                    Destroy(hit.collider.gameObject);
+
+                }
+                catch(Exception ex)
+                {
+                    Debug.LogError("Inventory exception: " + ex.Message);
                 }
             }
             else
