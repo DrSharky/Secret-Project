@@ -52,7 +52,7 @@ public class Computer : Interactable
 
     #region Command Fields
     //Variable to store the current menu.
-    private MenuCommand currentCommandMenu;
+    private CompMenuCommand currentCommandMenu;
     [SerializeField]
     private GameObject cmdCaretObject;
     #endregion
@@ -460,7 +460,7 @@ public class Computer : Interactable
         }
         else
         {
-            MenuCommand enteredMenu = menus.Commands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
+            CompMenuCommand enteredMenu = menus.Commands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
             if (enteredMenu != null)
             {
                 if (enteredMenu.hackable)
@@ -522,7 +522,7 @@ public class Computer : Interactable
     }
 
     //Display the correct menu & commands.
-    void ShowMenu(MenuCommand openMenu)
+    void ShowMenu(CompMenuCommand openMenu)
     {
         currentCommandMenu = openMenu;
         currentScreenType = ScreenType.Menu;

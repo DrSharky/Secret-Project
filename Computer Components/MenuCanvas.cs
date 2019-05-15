@@ -15,7 +15,7 @@ public class MenuCanvas : MonoBehaviour
     public UnityEngine.UI.Text commandListText;
     public UnityEngine.UI.Text emailTitleText;
     private CanvasGroup canvasGroup;
-    private MenuCommand currentMenu;
+    private CompMenuCommand currentMenu;
 
     private string emailText;
 

@@ -5,6 +5,15 @@ public class Radio : Interactable
     public AudioSource radioShow;
     public bool startOn = true;
     private bool initialized = false;
+    private float startVol;
+
+    public override void Awake()
+    {
+        base.Awake();
+        startVol = radioShow.volume;
+        if (!startOn)
+            radioShow.volume = 0.0f;
+    }
 
     void Start()
     {
@@ -12,7 +21,7 @@ public class Radio : Interactable
         {
             radioShow.Play();
             initialized = true;
-            radioShow.volume = 0.12f;
+            radioShow.volume = startVol;
         }
     }
 
@@ -25,7 +34,7 @@ public class Radio : Interactable
                 radioShow.Play();
                 initialized = true;
             }
-            radioShow.volume = 0.26f;
+            radioShow.volume = startVol;
         }
         else
             radioShow.volume = 0.0f;

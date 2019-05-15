@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Linq;
 
 public class PlayerUse : MonoBehaviour
@@ -9,7 +8,7 @@ public class PlayerUse : MonoBehaviour
     public PlayerInventory playerInventory;
 
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
-    private int layerMask = 1024;
+    //private int layerMask = 1024;
     private Interactable interactableObject;
     private string useString = "Use";
     private string interactableString = "Interactable";
@@ -53,17 +52,17 @@ public class PlayerUse : MonoBehaviour
                 try
                 {
                     InventoryObject objToAdd = hit.collider.gameObject.GetComponent<InventoryObjectScript>().inventoryObj;
-                    if (playerInventory.inventory.Contains(objToAdd))
-                        playerInventory.inventory.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
+                    if (playerInventory.items.Contains(objToAdd))
+                        playerInventory.items.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
                     else
                     {
                         objToAdd.heldQuantity = 1;
-                        playerInventory.inventory.Add(objToAdd);
+                        playerInventory.items.Add(objToAdd);
                     }
                     Destroy(hit.collider.gameObject);
 
                 }
-                catch(Exception ex)
+                catch(System.Exception ex)
                 {
                     Debug.LogError("Inventory exception: " + ex.Message);
                 }

@@ -59,4 +59,10 @@ public class SoundScape : MonoBehaviour
         float zDir = -distance * Mathf.Cos(angle * Mathf.Deg2Rad);
         return new Vector3(transform.position.x - (xDir/2), height, transform.position.z - (zDir/2));
     }
+
+    public void TogglePause(bool pause)
+    {
+        if (pause)
+            playSound = false;
+    }
 }

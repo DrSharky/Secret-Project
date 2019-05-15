@@ -10,7 +10,7 @@ public class TitleCanvas : MonoBehaviour
     public EmailCommandList emailInfo;
 
     private CanvasGroup canvasGroup;
-    private MenuCommand currentMenu;
+    private CompMenuCommand currentMenu;
     private string errorCmd;
 
     // Use this for initialization

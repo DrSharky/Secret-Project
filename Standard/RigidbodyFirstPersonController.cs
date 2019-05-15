@@ -117,7 +117,6 @@ public class RigidbodyFirstPersonController : MonoBehaviour
         }
     }
 
-
     private void Start()
     {
         m_RigidBody = GetComponent<Rigidbody>();
@@ -125,6 +124,10 @@ public class RigidbodyFirstPersonController : MonoBehaviour
         mouseLook.Init (transform, cam.transform);
     }
 
+    public void ToggleCursorLock()
+    {
+        mouseLook.SetCursorLock(!mouseLook.lockCursor);
+    }
 
     private void Update()
     {

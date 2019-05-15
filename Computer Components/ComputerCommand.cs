@@ -25,7 +25,7 @@ public class ComputerCommand
 }
 
 [Serializable]
-public class MenuCommand : ComputerCommand
+public class CompMenuCommand : ComputerCommand
 {
     public List<ComputerCommand> subCommands;
 
@@ -39,13 +39,13 @@ public class MenuCommand : ComputerCommand
     public bool alreadyHacked;
     public string password;
 
-    public MenuCommand(string name) : base(name)
+    public CompMenuCommand(string name) : base(name)
     {
         messageType = CompMessageType.Menu;
         subCommands = new List<ComputerCommand>();
     }
 
-    public MenuCommand() : base()
+    public CompMenuCommand() : base()
     {
         commandText = "home";
         messageType = CompMessageType.Menu;
@@ -69,7 +69,7 @@ public class EmailCommand : ComputerCommand
 }
 
 [Serializable]
-public class EmailMenuCommand : MenuCommand
+public class EmailMenuCommand : CompMenuCommand
 {
     public List<EmailCommand> emailCommands;
 
@@ -96,17 +96,3 @@ public enum CompMessageType
     Misc,
     Warning
 }
-
-//Class to store some email info.
-//Might expand this into another class & file later.
-//[Serializable]
-//public class EmailInfo
-//{
-//    [HideInInspector]
-//    public int totalEmails = 0;
-//    [HideInInspector]
-//    public int unreadEmails = 0;
-//    public bool hasEmail = false;
-//    public string emailPassword;
-//    public string accountName;
-//}

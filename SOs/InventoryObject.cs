@@ -10,4 +10,15 @@ public class InventoryObject : ScriptableObject
     public bool usable;
     public bool equippable;
     public bool canDrop;
+    public ItemType type;
+}
+
+public enum ItemType
+{
+    None,
+    General,
+    Quest,
+    Firearm,
+    Melee,
+    Clothing
 }

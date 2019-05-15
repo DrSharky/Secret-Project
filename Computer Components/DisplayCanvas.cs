@@ -7,7 +7,7 @@ public class DisplayCanvas : MonoBehaviour
     private CanvasGroup canvasGroup;
 
     public MenuCommandList menuCmdList;
-    private MenuCommand currentMenu;
+    private CompMenuCommand currentMenu;
     private ComputerCommand currentCommand;
     public UnityEngine.UI.Text displayText;
     public MenuCanvas menuCanvas;

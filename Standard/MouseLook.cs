@@ -28,6 +28,8 @@ public class MouseLook
 
     public void LookRotation(Transform character, Transform camera)
     {
+        UpdateCursorLock();
+
         if (RigidbodyFirstPersonController.frozen)
             return;
 
@@ -52,8 +54,6 @@ public class MouseLook
             character.localRotation = m_CharacterTargetRot;
             camera.localRotation = m_CameraTargetRot;
         }
-
-        UpdateCursorLock();
     }
 
     public void SetCursorLock(bool value)
@@ -75,11 +75,11 @@ public class MouseLook
 
     private void InternalLockUpdate()
     {
-        if(Input.GetKeyUp(KeyCode.Escape) && Time.timeScale > 0f)
-        {
-            m_cursorIsLocked = false;
-        }
-        else if(Input.GetMouseButtonUp(0))
+        //if(Input.GetKeyUp(KeyCode.Escape) && Time.timeScale > 0f)
+        //{
+        //    m_cursorIsLocked = false;
+        //}        
+        if(Input.GetMouseButtonUp(0))
         {
             m_cursorIsLocked = true;
         }

@@ -6,5 +6,5 @@ using Sirenix.OdinInspector;
 public class MenuCommandList : SerializedScriptableObject
 {
     [SerializeField]
-    public List<MenuCommand> Commands;
+    public List<CompMenuCommand> Commands;
 }
