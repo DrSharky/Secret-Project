@@ -11,6 +11,9 @@ public class InventoryObject : ScriptableObject
     public bool equippable;
     public bool canDrop;
     public ItemType type;
+    public string infoName;
+    [TextArea]
+    public string infoDescription;
 }
 
 public enum ItemType

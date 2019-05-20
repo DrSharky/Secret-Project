@@ -37,13 +37,12 @@ public class ItemSpin : MonoBehaviour
             {
                 if (clickDown)
                 {
-                    float xRot = Input.GetAxis("Mouse X") * 6f;
+                    float xRot = Input.GetAxis("Mouse X") * 12f;
                     rotOrigin = childTransform.TransformPoint(childCollider.center);
                     childTransform.RotateAround(rotOrigin, Vector3.up, -xRot);
                 }
                 else
                 {
-
                     pointerData = new PointerEventData(eventSystem);
                     pointerData.position = Input.mousePosition;
                     List<RaycastResult> castResults = new List<RaycastResult>();
