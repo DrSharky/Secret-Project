@@ -52,12 +52,12 @@ public class PlayerUse : MonoBehaviour
                 try
                 {
                     InventoryObject objToAdd = hit.collider.gameObject.GetComponent<InventoryObjectScript>().inventoryObj;
-                    if (playerInventory.items.Contains(objToAdd))
-                        playerInventory.items.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
+                    if (playerInventory.generalItems.Contains(objToAdd))
+                        playerInventory.generalItems.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
                     else
                     {
                         objToAdd.heldQuantity = 1;
-                        playerInventory.items.Add(objToAdd);
+                        playerInventory.generalItems.Add(objToAdd);
                     }
                     Destroy(hit.collider.gameObject);
 

@@ -55,7 +55,7 @@ public class InventoryManager : MonoBehaviour
         //instantiate new UI elements under it.
         //I guess this depends on the player's inventory?
 
-        List<InventoryObject> objects = inventory.items.FindAll(x => x.type == type).ToList();
+        List<InventoryObject> objects = inventory.generalItems.FindAll(x => x.type == type).ToList();
 
         GameObject itemGroupObj = new GameObject();
         itemGroupObj.AddComponent<CanvasGroup>();
@@ -110,4 +110,14 @@ public class InventoryManager : MonoBehaviour
     }
 
     //TODO: Add methods for adding and removing items from inventory & updating UI when this happens.
+
+    public void RemoveInventoryItem()
+    {
+
+    }
+
+    public void AddInventoryItem()
+    {
+
+    }
 }

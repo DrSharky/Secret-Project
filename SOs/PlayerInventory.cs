@@ -5,5 +5,13 @@ using UnityEngine;
 public class PlayerInventory : ScriptableObject
 {
     [SerializeField]
-    public List<InventoryObject> items;
+    public List<InventoryObject> generalItems;
+    [SerializeField]
+    public List<InventoryObject> questItems;
+    [SerializeField]
+    public List<InventoryObject> firearmItems;
+    [SerializeField]
+    public List<InventoryObject> meleeItems;
+    [SerializeField]
+    public List<InventoryObject> clothingItems;
 }
