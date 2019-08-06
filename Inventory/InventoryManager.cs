@@ -22,7 +22,7 @@ public class InventoryManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.I) && !Computer.usingComputer)
         {
             if (!inventoryActive)
                 Time.timeScale = 0f;

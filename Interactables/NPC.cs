@@ -1,19 +1,21 @@
 ﻿using UnityEngine;
+using RogoDigital.Lipsync;
 
 public class NPC : Interactable
 {
+    //This is just a test thing, will remove later.
     private string animTrigger = "Intro";
     public AudioClip[] dialogues;
     public GameObject player;
     private Animator anim;
-    RogoDigital.Lipsync.LipSync LS;
-    public RogoDigital.Lipsync.LipSyncData LSData;   
+    LipSync LS;
+    public LipSyncData LSData;
+    public NPCState state;
 
-
-	void Start ()
+    void Start()
     {
         anim = GetComponentInChildren<Animator>();
-        LS = GetComponent<RogoDigital.Lipsync.LipSync>();
+        LS = GetComponent<LipSync>();
 	}
 
     public override void Activate()
@@ -24,4 +26,23 @@ public class NPC : Interactable
         LS.Play(LSData);
         anim.SetTrigger(animTrigger);
     }
+
+    void Update()
+    {
+        if(state == NPCState.Dead)
+            Destroy(this);
+    }
+}
+
+public enum NPCState
+{
+    None = 0,
+    Idle = 1,
+    Wandering = 2,
+    Talking = 3,
+    Engaged = 4,
+    Running = 5,
+    Attacking = 6,
+    Stunned = 7,
+    Dead = 8
 }

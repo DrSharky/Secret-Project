@@ -51,16 +51,10 @@ public class PlayerUse : MonoBehaviour
                 GameObject invGO = hit.collider.gameObject;
                 try
                 {
-                    InventoryObject objToAdd = hit.collider.gameObject.GetComponent<InventoryObjectScript>().inventoryObj;
-                    if (playerInventory.generalItems.Contains(objToAdd))
-                        playerInventory.generalItems.FirstOrDefault(x => x.name == hit.collider.name).heldQuantity++;
-                    else
-                    {
-                        objToAdd.heldQuantity = 1;
-                        playerInventory.generalItems.Add(objToAdd);
-                    }
-                    Destroy(hit.collider.gameObject);
-
+                    InventoryObject objToAdd = invGO.GetComponent<InventoryObjectScript>().inventoryObj;
+                    string hitName = hit.collider.name;
+                    AddToInventory(objToAdd, hitName);
+                    Destroy(invGO);
                 }
                 catch(System.Exception ex)
                 {
@@ -74,7 +68,6 @@ public class PlayerUse : MonoBehaviour
                     PhysObj heldObj = physObjParent.GetChild(0).gameObject.GetComponent<PhysObj>();
                     heldObj.DropLogic();
                 }
-
                 //Debug.DrawRay(playerCam.position, playerCam.forward*2, Color.yellow, 10.0f);
             }
         }
@@ -84,6 +77,73 @@ public class PlayerUse : MonoBehaviour
                 RigidbodyFirstPersonController.frozen = false;
             else
                 Application.Quit();
+        }
+    }
+
+    void AddToInventory(InventoryObject objToAdd, string hitName)
+    {
+        switch (objToAdd.type)
+        {
+            case ItemType.Clothing:
+                if (playerInventory.clothingItems.Contains(objToAdd))
+                {
+                    //Add UI event to notify player they already have this clothing set.
+                    //They shouldn't have a duplicate!
+                }
+                else
+                {
+                    objToAdd.heldQuantity = 1;
+                    playerInventory.clothingItems.Add(objToAdd);
+                }
+                break;
+            case ItemType.Firearm:
+                if (playerInventory.firearmItems.Contains(objToAdd))
+                {
+                    /*playerInventory.firearmItems.FirstOrDefault(x => x.name == hitName).heldQuantity++;*/
+                    //Add logic to increase ammo count if you pick up another gun of the same type.
+                    //The ammo increase logic should also dictate whether your ammo is full on that gun type or not.
+                }
+                else
+                {
+                    objToAdd.heldQuantity = 1;
+                    playerInventory.firearmItems.Add(objToAdd);
+                }
+                break;
+            case ItemType.General:
+                if (playerInventory.generalItems.Contains(objToAdd))
+                    playerInventory.generalItems.FirstOrDefault(x => x.name == hitName).heldQuantity++;
+                else
+                {
+                    objToAdd.heldQuantity = 1;
+                    playerInventory.generalItems.Add(objToAdd);
+                }
+                break;
+            case ItemType.Melee:
+                if (playerInventory.meleeItems.Contains(objToAdd))
+                {
+                    //Add UI event to notify player they already have this weapon.
+                    //They shouldn't have a duplicate!
+                }
+                else
+                {
+                    objToAdd.heldQuantity = 1;
+                    playerInventory.meleeItems.Add(objToAdd);
+                }
+                break;
+            case ItemType.Quest:
+                if (playerInventory.questItems.Contains(objToAdd))
+                {
+                    //Add UI event to notify player they already have this quest item.
+                    //They shouldn't have a duplicate!
+                }
+                else
+                {
+                    objToAdd.heldQuantity = 1;
+                    playerInventory.questItems.Add(objToAdd);
+                }
+                break;
+            default:
+                break;
         }
     }
 }
