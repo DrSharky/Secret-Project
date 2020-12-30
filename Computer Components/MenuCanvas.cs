@@ -8,8 +8,11 @@ public class MenuCanvas : MonoBehaviour
     public event MenuDelegate OnMenuSwitch;
 
     public MenuCommandList menuCmdList;
-    public EmailCommandList emailInfo;
-
+    //public EmailCommandList emailInfo;
+    [SerializeField]
+    public List<PCEmailCommand> emailList;
+    [SerializeField]
+    private EmailCanvas emailCanvas;
     public UnityEngine.UI.Text menuTitleText;
     public UnityEngine.UI.Text menuListText;
     public UnityEngine.UI.Text commandListText;
@@ -21,8 +24,14 @@ public class MenuCanvas : MonoBehaviour
 
     void Start()
     {
+        PopulateEmailList();
         canvasGroup = GetComponent<CanvasGroup>();
         SetEmailText();
+    }
+
+    void PopulateEmailList()
+    {
+        emailList = emailCanvas.emailShowList;
     }
 
     public void SwitchMenu(string menu)
@@ -35,11 +44,22 @@ public class MenuCanvas : MonoBehaviour
         SetEmailText();
     }
 
+    int GetUnreadEmailCount()
+    {
+        int count = 0;
+        for(int i = 0; i < emailList.Count; i++)
+        {
+            if (!emailList[i].read)
+                count++;
+        }
+        return count;
+    }
+
     public void SetEmailText()
     {
-        emailText = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailInfo.GetEmailCount() +
+        emailText = CommonCompStrings.emailDict[CommonCompStrings.Email.TitleYou] + emailCanvas.GetShowEmailCount() +
             CommonCompStrings.emailDict[CommonCompStrings.Email.TitleNum] +
-            emailInfo.GetUnreadCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
+            GetUnreadEmailCount() + CommonCompStrings.emailDict[CommonCompStrings.Email.TitleUnread];
         emailTitleText.text = emailText;
     }
 

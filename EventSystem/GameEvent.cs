@@ -11,6 +11,7 @@ public class GameEvent : ScriptableObject
     public float sentFloat;
     public bool sentBool;
     public ScreenType sentScreenType;
+    public ItemType sentItemType;
     
     protected List<EventListener> eventListeners = new List<EventListener>();
 

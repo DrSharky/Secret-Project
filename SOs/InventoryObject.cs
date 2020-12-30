@@ -4,8 +4,14 @@
 [System.Serializable]
 public class InventoryObject : ScriptableObject
 {
+    public void OnEnable()
+    {
+        if(uid == null)
+            uid = System.Guid.NewGuid().ToString();
+    }
+
+    public string uid;
     public GameObject heldObject;
-    public int heldQuantity;
     public Texture2D inventoryImage;
     public bool usable;
     public bool equippable;
@@ -14,14 +20,4 @@ public class InventoryObject : ScriptableObject
     public string infoName;
     [TextArea]
     public string infoDescription;
-}
-
-public enum ItemType
-{
-    None,
-    General,
-    Quest,
-    Firearm,
-    Melee,
-    Clothing
 }

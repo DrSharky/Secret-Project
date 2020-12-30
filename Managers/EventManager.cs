@@ -2,7 +2,7 @@
 using UnityEngine;
 using System;
 
-public class EventManager : ScriptableObject
+public static class EventManager
 {
     #region Event strings
     //For handling the hiding/showing of the display panel on Computers.
@@ -24,29 +24,29 @@ public class EventManager : ScriptableObject
     public static string titlePanelToggle = "TitlePanel Event ";
     #endregion
 
-    private DictionaryByType dictByType;
+    private static DictionaryByType dictByType = new DictionaryByType();
 
-    private static EventManager eventManager;
+    //private static EventManager eventManager;
 
-    public static EventManager instance
-    {
-        get
-        {
-            if (!eventManager)
-            {
-                //eventManager = CreateInstance<EventManager>();
-                eventManager = (EventManager)CreateInstance(typeof(EventManager));
+    //public static EventManager instance
+    //{
+    //    get
+    //    {
+    //        if (eventManager == null)
+    //        {
+    //            //eventManager = CreateInstance<EventManager>();
+    //            eventManager = (EventManager)CreateInstance(typeof(EventManager));
 
-                if (!eventManager)
-                    Debug.LogError("Error creating EventManager SO!");
-                else
-                    eventManager.Init();
-            }
-            return eventManager;
-        }
-    }
+    //            if (!eventManager)
+    //                Debug.LogError("Error creating EventManager SO!");
+    //            else
+    //                eventManager.Init();
+    //        }
+    //        return eventManager;
+    //    }
+    //}
 
-    void Init()
+    public static void Init()
     {
         if (dictByType == null)
             dictByType = new DictionaryByType();
@@ -55,59 +55,57 @@ public class EventManager : ScriptableObject
     public static void StartListening<T>(string eventName, Action<T> listener)
     {
         Action<T> thisEvent;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent += listener;
-            instance.dictByType[eventName] = thisEvent;
+            dictByType[eventName] = thisEvent;
         }
         else
         {
             thisEvent += listener;
-            instance.dictByType.Add(eventName, thisEvent);
+            dictByType.Add(eventName, thisEvent);
         }
     }
 
     public static void StartListening(string eventName, Action listener)
     {
         Action thisEvent;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent += listener;
-            instance.dictByType[eventName] = thisEvent;
+            dictByType[eventName] = thisEvent;
         }
         else
         {
             thisEvent += listener;
-            instance.dictByType.Add(eventName, thisEvent);
+            dictByType.Add(eventName, thisEvent);
         }
     }
 
     public static void StopListening<T>(string eventName, Action<T> listener)
     {
-        if (eventManager == null) return;
         Action<T> thisEvent;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent -= listener;
-            instance.dictByType[eventName] = thisEvent;
+            dictByType[eventName] = thisEvent;
         }
     }
 
     public static void StopListening(string eventName, Action listener)
     {
-        if (eventManager == null) return;
         Action thisEvent;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent -= listener;
-            instance.dictByType[eventName] = thisEvent;
+            dictByType[eventName] = thisEvent;
         }
     }
 
     public static void TriggerEvent<T>(string eventName, T eventParam)
     {
         Action<T> thisEvent = null;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent.Invoke(eventParam);
         }
@@ -116,7 +114,7 @@ public class EventManager : ScriptableObject
     public static void TriggerEvent(string eventName)
     {
         Action thisEvent = null;
-        if (instance.dictByType.TryGet(eventName, out thisEvent))
+        if (dictByType.TryGet(eventName, out thisEvent))
         {
             thisEvent.Invoke();
         }

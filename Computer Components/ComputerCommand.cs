@@ -19,8 +19,8 @@ public class ComputerCommand
 
     public ComputerCommand()
     {
-        commandText = "home";
-        messageType = CompMessageType.Menu;
+        //commandText = "home";
+        //messageType = CompMessageType.Menu;
     }
 }
 
@@ -36,7 +36,7 @@ public class CompMenuCommand : ComputerCommand
     public string commandsDisplayText;
     public string menuPanelTitle;
     public bool hackable;
-    public bool alreadyHacked;
+    //public bool alreadyHacked;
     public string password;
 
     public CompMenuCommand(string name) : base(name)
@@ -47,7 +47,7 @@ public class CompMenuCommand : ComputerCommand
 
     public CompMenuCommand() : base()
     {
-        commandText = "home";
+        //commandText = "home";
         messageType = CompMessageType.Menu;
     }
 }
@@ -55,8 +55,8 @@ public class CompMenuCommand : ComputerCommand
 [Serializable]
 public class EmailCommand : ComputerCommand
 {
-    public bool read;
-    public bool showEmail;
+    //public bool read;
+    //public bool showEmail;
 
     protected bool questRelated;
     public string sender;
@@ -75,7 +75,7 @@ public class EmailMenuCommand : CompMenuCommand
 
     public EmailMenuCommand()
     {
-        commandText = "email";
+        commandText = StringManager.emailCmd;
         messageType = CompMessageType.EmailMenu;
         hackable = true;
     }

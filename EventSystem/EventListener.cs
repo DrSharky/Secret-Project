@@ -68,6 +68,7 @@ public class EventAndResponse
     public ResponseWithFloat responseForSentFloat;
     public ResponseWithBool responseForSentBool;
     public ResponseWithScreenType responseForScreenType;
+    public ResponseWithItemType responseForItemType;
 
     public virtual void EventRaised()
     {
@@ -106,6 +107,12 @@ public class EventAndResponse
         {
             responseForScreenType.Invoke(gameEvent.sentScreenType);
         }
+
+        // ItemType
+        if (responseForItemType.GetPersistentEventCount() >= 1)
+        {
+            responseForItemType.Invoke(gameEvent.sentItemType);
+        }
     }
 }
 
@@ -131,5 +138,10 @@ public class ResponseWithBool : UnityEvent<bool>
 
 [Serializable]
 public class ResponseWithScreenType : UnityEvent<ScreenType>
+{
+}
+
+[Serializable]
+public class ResponseWithItemType : UnityEvent<ItemType>
 {
 }

@@ -20,14 +20,14 @@ public class InteractHighlight : MonoBehaviour
             RaycastHit hit;
             if(Physics.Raycast(transform.position, transform.forward, out hit, 2.0f, layerMask))
             {
-                Debug.DrawLine(hit.point, transform.position, Color.blue, 10.0f);
+                Debug.DrawLine(hit.point, transform.position, Color.green, 3.0f);
                 Highlighter high = hit.collider.gameObject.GetComponentInChildren<Highlighter>();
                 if(high != null)
                     high.highlighting = true;
             }
             else
             {
-                Debug.DrawRay(transform.position, transform.forward * 2, Color.cyan, 10.0f);
+                Debug.DrawRay(transform.position, transform.forward * 2, Color.red, 3.0f);
                 if(gameObjects.Count > 0)
                 {
                     for(int j = 0; j < gameObjects.Count; j++)
@@ -46,9 +46,13 @@ public class InteractHighlight : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+
         if (other.gameObject.CompareTag("Interactable"))
         {
-            Interactable interactable = other.gameObject.GetComponentInChildren<Interactable>();
+            Interactable interactable;
+            interactable = other.gameObject.GetComponent<Interactable>();
+            if(interactable == null)
+                interactable = other.gameObject.GetComponentInChildren<Interactable>();
             if (interactable.highlight)
             {
                 gameObjects.Add(other.gameObject);

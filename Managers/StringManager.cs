@@ -1,26 +1,7 @@
 ﻿using UnityEngine;
 
-//OBSOLETE. Reducing singletons.
-public class StringManager : ScriptableObject
+public static class StringManager
 {
-    private const string path = "Assets/Scriptable Objects/StringManager.asset";
-
-
-    private static StringManager stringManager;
-
-    public static StringManager instance
-    {
-        get
-        {
-            if (!stringManager)
-                stringManager = FindObjectOfType<StringManager>();
-            if (!stringManager)
-                stringManager = CreateInstance<StringManager>();
-
-            return stringManager;
-        }
-    }
-
     #region EventManager
     public const string displayPanelToggle = "DisplayPanel Event ";
     public const string menuPanelToggle = "MenuPanel Event ";
@@ -37,6 +18,7 @@ public class StringManager : ScriptableObject
     #endregion
 
     #region Computer Command
+    public const string homeCmd = "home";
     public const string listCmd = "list";
     public const string emailCmd = "email";
     public const string menuIndent = "   ";

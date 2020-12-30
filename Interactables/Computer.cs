@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO: Add functionality for audio source. - only email audio stuff not done.
-//TODO: Add logic for email, separate menu type. (SO)
-
 /// <summary>
 /// The class to use for interactive computers.
 /// </summary>
@@ -52,7 +49,7 @@ public class Computer : Interactable
 
     #region Command Fields
     //Variable to store the current menu.
-    private CompMenuCommand currentCommandMenu;
+    private PCMenuCommand currentCommandMenu;
     [SerializeField]
     private GameObject cmdCaretObject;
     #endregion
@@ -66,7 +63,12 @@ public class Computer : Interactable
     #endregion
 
     #region Other Components
+    [Header("Other Components")]
+    [SerializeField]
+    private EmailCanvas emailCanvas;
+
     //Boolean to tell other things if the player is using the computer currently.
+    //Change this from static, there could be multiple computers in a scene.
     public static bool usingComputer = false;
     private bool displayText = false;
     private bool isHacking = false;
@@ -117,6 +119,7 @@ public class Computer : Interactable
         {
             //Email menu should always be the first in the list.
             emailCommand = new EmailMenuCommand();
+            currentCommandMenu = new PCMenuCommand();
             //menus.Commands.Insert(0, emailCommand);
 
             //Populate the email list.
@@ -127,14 +130,14 @@ public class Computer : Interactable
             //Home menu should always be after the email menu, if email menu exists.
             //menus.Commands.Insert(1, homeCommand);
             //Set the current menu to the home menu.
-            currentCommandMenu = menus.Commands[1];
+            currentCommandMenu.compCommand = menus.Commands[1];
         }
         else
         {
             //If no email menu exists for the computer, then assign
             //the home menu to be first in the list, and set as current menu.
             //menus.Commands.Insert(0, homeCommand);
-            currentCommandMenu = menus.Commands[0];
+            currentCommandMenu.compCommand = menus.Commands[0];
         }
     }
 
@@ -169,7 +172,7 @@ public class Computer : Interactable
                         ExitScreen();
                         break;
                     case ScreenType.DisplayText:
-                        ShowMenu(currentCommandMenu);
+                        ShowMenu(currentCommandMenu.compCommand);
                         break;
                 }
             }
@@ -262,7 +265,7 @@ public class Computer : Interactable
                             emailPage.sentInt = 0;
                             break;
                         case "n":
-                            if ((emailPageIndex + 10) > emailInfo.GetEmailCount())
+                            if ((emailPageIndex + 10) > emailCanvas.GetShowEmailCount())
                                 ShowEmailMenu();
                             else
                                 emailPageIndex += 10;
@@ -275,7 +278,7 @@ public class Computer : Interactable
                             commandText.text = null;
                             emailIndex = 0;
                             emailPageIndex = 0;
-                            ShowMenu(menus.Commands.Find(x => x.commandText == "home"));
+                            ShowMenu(menus.Commands.Find(x => x.commandText == StringManager.homeCmd));
                             break;
                         //Using default case for numbers since we aren't sure the limits of the numbers.
                         //Use default and try to parse the number if possible.
@@ -322,21 +325,27 @@ public class Computer : Interactable
                     ShowHacking();
                 else if(currentScreenType == ScreenType.PasswordSucceed)
                 {
-                    if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
+                    if (currentCommandMenu.compCommand.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
                         System.StringComparison.Ordinal))
                         ShowEmailMenu();
                     else
-                        ShowMenu(currentCommandMenu);
+                        ShowMenu(currentCommandMenu.compCommand);
                 }
                 else
                     CommandEnter();
             }
-            else if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
-                     && currentScreenType == ScreenType.Password && commandText.text.Length == 0)
+            else if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                && currentScreenType == ScreenType.Password && commandText.text.Length == 0)
             {
-                //If Ctrl is pressed on a hackable menu, start hacking process.
-                StartHacking();
+                if (Input.GetKeyDown(KeyCode.C))
+                    StartHacking();
             }
+            //else if ((Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
+            //         && currentScreenType == ScreenType.Password && commandText.text.Length == 0)
+            //{
+            //    //If Ctrl is pressed on a hackable menu, start hacking process.
+            //    StartHacking();
+            //}
         }
     }
     #endregion
@@ -361,11 +370,11 @@ public class Computer : Interactable
     {
         //Set the current menu back to the home menu.
         if (emailInfo.hasEmail)
-            currentCommandMenu = menus.Commands[1];
+            currentCommandMenu.compCommand = menus.Commands[1];
         else
-            currentCommandMenu = menus.Commands[0];
+            currentCommandMenu.compCommand = menus.Commands[0];
 
-        menuScreens.Find(x => x.sentString == "home").Raise();
+        menuScreens.Find(x => x.sentString == StringManager.homeCmd).Raise();
 
         //Raise deactivate game event (SO).
         deactivate.Raise();
@@ -374,7 +383,8 @@ public class Computer : Interactable
         //is no longer using a computer.
         usingComputer = false;
 
-        RigidbodyFirstPersonController.frozen = false;
+        //RigidbodyFirstPersonController.frozen = false;
+
     }
     #endregion
 
@@ -382,11 +392,11 @@ public class Computer : Interactable
     void PasswordEnter(string enteredPassword = null)
     {
         //Password accepted.
-        if (enteredPassword == currentCommandMenu.password)
+        if (enteredPassword == currentCommandMenu.compCommand.password)
         {
             computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
-            menuScreens.Find(x => x.sentString == currentCommandMenu.commandText).Raise();
+            menuScreens.Find(x => x.sentString == currentCommandMenu.compCommand.commandText).Raise();
 
             //if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email], System.StringComparison.Ordinal))
             //{
@@ -402,7 +412,7 @@ public class Computer : Interactable
         }
         else if (enteredPassword.Equals(CommonCompStrings.charDict[CommonCompStrings.Char.Empty], System.StringComparison.Ordinal))
         {
-            ShowMenu(menus.Commands.Find(x => x.commandText.Equals("home", System.StringComparison.Ordinal)));
+            ShowMenu(menus.Commands.Find(x => x.commandText.Equals(StringManager.homeCmd, System.StringComparison.Ordinal)));
         }
         //Password failed.
         else
@@ -421,7 +431,7 @@ public class Computer : Interactable
 
         if(currentScreenType == ScreenType.Error)
         {
-            ShowMenu(currentCommandMenu);
+            ShowMenu(currentCommandMenu.compCommand);
             return;
         }
 
@@ -431,10 +441,10 @@ public class Computer : Interactable
             //If the user presses enter on the display page.
             if (Input.GetKey(KeyCode.Return))
             {
-                commandString = currentCommandMenu.commandText;
+                commandString = currentCommandMenu.compCommand.commandText;
                 //SelectCommandText();
                 displayText = false;
-                ShowMenu(currentCommandMenu);
+                ShowMenu(currentCommandMenu.compCommand);
                 return;
             }
         }
@@ -444,7 +454,7 @@ public class Computer : Interactable
         if(commandString == CommonCompStrings.cmdDict[CommonCompStrings.Command.Help])
         { ShowHelpText(); return; }
 
-        enteredCommand = currentCommandMenu.subCommands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
+        enteredCommand = currentCommandMenu.compCommand.subCommands.Find(x => x.commandText.Equals(commandString, System.StringComparison.Ordinal));
         if (enteredCommand != null)
         {
             //mainText.text = enteredCommand.displayText;
@@ -465,7 +475,7 @@ public class Computer : Interactable
             {
                 if (enteredMenu.hackable)
                 {
-                    currentCommandMenu = enteredMenu;
+                    currentCommandMenu.compCommand = enteredMenu;
                     if (!currentCommandMenu.alreadyHacked)
                     {
                         ShowHacking();
@@ -473,7 +483,7 @@ public class Computer : Interactable
                     }
                     else
                     {
-                        PasswordEnter(currentCommandMenu.password);
+                        PasswordEnter(currentCommandMenu.compCommand.password);
                         return;
 
                         //Make sure that the other commands don't enter a password if
@@ -490,7 +500,7 @@ public class Computer : Interactable
                     && currentScreenType != ScreenType.Help)
                         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Accept]);
 
-                    if (currentCommandMenu.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
+                    if (currentCommandMenu.compCommand.commandText.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.Email],
                     System.StringComparison.Ordinal))
                         ShowEmailMenu();
                     else
@@ -500,7 +510,7 @@ public class Computer : Interactable
             //if user entered "list" command
             else if (commandString.Equals(CommonCompStrings.cmdDict[CommonCompStrings.Command.List], System.StringComparison.Ordinal))
             {
-                ShowMenu(currentCommandMenu);
+                ShowMenu(currentCommandMenu.compCommand);
             }
             //else the user entered an invalid command.
             else
@@ -524,7 +534,7 @@ public class Computer : Interactable
     //Display the correct menu & commands.
     void ShowMenu(CompMenuCommand openMenu)
     {
-        currentCommandMenu = openMenu;
+        currentCommandMenu.compCommand = openMenu;
         currentScreenType = ScreenType.Menu;
 
         menuScreens.Find(x => x.sentString == openMenu.commandText).Raise();
@@ -545,7 +555,7 @@ public class Computer : Interactable
         isHacking = true;
         cmdCaretObject.SetActive(false);
         computerAudioSource.PlayOneShot(computerSounds.audioDict[ComputerSounds.Clips.Typing]);
-        int passTime = currentCommandMenu.password.Length;
+        int passTime = currentCommandMenu.compCommand.password.Length;
         //Set coroutine value right before calling it, need to know passTime before
         //setting coroutine value, because passTime can be a variable length.
         randPasswordCoroutine = GetRandPassword(passTime);
@@ -559,7 +569,7 @@ public class Computer : Interactable
         float beginningTime = Time.time;
         while (true)
         {
-            if(Time.time - (beginningTime + 1) > currentCommandMenu.password.Length)
+            if(Time.time - (beginningTime + 1) > currentCommandMenu.compCommand.password.Length)
                 break;
             else
                 RandomizeLetters((int)(Time.time - beginningTime));
@@ -575,7 +585,7 @@ public class Computer : Interactable
 
     void RandomizeLetters(int index = 0)
     {
-        commandText.text = currentCommandMenu.password.Substring(0, index) + GetRandomLetters(currentCommandMenu.password.Length - index);
+        commandText.text = currentCommandMenu.compCommand.password.Substring(0, index) + GetRandomLetters(currentCommandMenu.compCommand.password.Length - index);
     }
 
     string GetRandomLetters(int wordLength)

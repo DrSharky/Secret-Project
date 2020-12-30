@@ -23,12 +23,38 @@ public class EmailCanvas : MonoBehaviour
     [SerializeField] private Text displaySubjectText;
     [SerializeField] private Text displaySenderText;
 
-    private EmailCommand currentEmail;
+    private PCEmailCommand currentEmail;
     private CanvasGroup emailParentCanvas;
     private List<EmailTextObject> emailTextObjects = new List<EmailTextObject>();
     //private List<EmailCommand> emailsToDisplay;
-    private List<EmailCommand> emailShowList = new List<EmailCommand>();
+    public List<PCEmailCommand> emailShowList = new List<PCEmailCommand>();
     private int pageIndex;
+
+    public int GetShowEmailCount()
+    {
+        int count = 0;
+        for(int i = 0; i < emailShowList.Count; i++)
+        {
+            if (emailShowList[i].showEmail)
+                count++;
+        }
+        return count;
+    }
+
+    public EmailCommandList GetEmailList()
+    {
+        return emailCommands;
+    }
+
+    public int GetEmailCount()
+    {
+        return emailCommands.GetEmailCount();
+    }
+
+    void Start()
+    {
+        currentEmail = new PCEmailCommand();
+    }
 
     public void DeleteEmail(int index)
     {
@@ -66,11 +92,11 @@ public class EmailCanvas : MonoBehaviour
         //currentEmail = emailsToDisplay[emailIndex-1];
         currentEmail = emailShowList[emailIndex - 1];
         currentEmail.read = true;
-        emailDisplayText.text = currentEmail.displayText;
+        emailDisplayText.text = currentEmail.emailCommand.displayText;
         displaySenderText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.SenderDisplay] + 
-                                 currentEmail.sender;
+                                 currentEmail.emailCommand.sender;
         displaySubjectText.text = CommonCompStrings.emailDict[CommonCompStrings.Email.SubjectDisplay] +
-                                 currentEmail.subject;
+                                 currentEmail.emailCommand.subject;
         SwitchState(ScreenType.Email);
     }
 
@@ -82,7 +108,8 @@ public class EmailCanvas : MonoBehaviour
 
         for(int i = 0; i < emailCommands.Commands.Count; i++)
         {
-            emailShowList.Add(emailCommands.Commands[i]);
+            emailShowList.Add(new PCEmailCommand(emailCommands.Commands[i]));
+            //emailShowList.Add(emailCommands.Commands[i]);
         }
     }
 
@@ -170,10 +197,10 @@ public class EmailCanvas : MonoBehaviour
             {
                 string emailIndex = CommonCompStrings.charDict[CommonCompStrings.Char.LBracket] + (startIndex + j + 1) +
                                     CommonCompStrings.charDict[CommonCompStrings.Char.RBracket];
-                subjectText.text = emailShowList[startIndex+j].subject;
+                subjectText.text = emailShowList[startIndex+j].emailCommand.subject;
 
                 emailNumText.text = emailIndex;
-                emailSub.text = emailShowList[startIndex+j].subject;
+                emailSub.text = emailShowList[startIndex+j].emailCommand.subject;
 
                 if (!emailShowList[startIndex+j].read)
                 {

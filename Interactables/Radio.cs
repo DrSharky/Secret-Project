@@ -7,9 +7,8 @@ public class Radio : Interactable
     private bool initialized = false;
     private float startVol;
 
-    public override void Awake()
+    private void Awake()
     {
-        base.Awake();
         startVol = radioShow.volume;
         if (!startOn)
             radioShow.volume = 0.0f;

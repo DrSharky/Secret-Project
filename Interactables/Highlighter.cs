@@ -22,30 +22,21 @@ public class Highlighter : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-        if (RigidbodyFirstPersonController.frozen && frozenSet)
+        if (frozenSet)
             return;
 
         if (inRange)
         {
             if(highlighting)
             {
-                if (RigidbodyFirstPersonController.frozen && !frozenSet)
-                {
-                    SetColor(Color.black);
-                    frozenSet = true;
-                    return;
-                }
-                else
-                {
                     float emission = Mathf.PingPong(Time.time * 0.25f, ceiling - floor);
                     Color emissionColor = baseColor * Mathf.LinearToGammaSpace(emission);
                     SetColor(emissionColor);
-                }
-                if (frozenSet)
-                    frozenSet = false;
             }
         }
 	}
+
+    public void PCFreezeToggle(bool freeze) { frozenSet = !freeze; SetColor(Color.black); }
 
     public void SetColor(Color color)
     {

@@ -15,12 +15,5 @@ public abstract class Interactable : MonoBehaviour, IInteractable
     /// </summary>
     public bool freezePlayer = false;
 
-    public virtual void Activate() { }
-
-    public System.Action activateListener { get; set; }
-    public virtual void Awake()
-    {
-        activateListener = new System.Action(() => Activate());
-        EventManager.StartListening("Activate" + gameObject.name, activateListener);
-    }
+    public abstract void Activate();
 }

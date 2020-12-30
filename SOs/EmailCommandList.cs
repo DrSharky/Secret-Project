@@ -15,16 +15,17 @@ public class EmailCommandList : SerializedScriptableObject
 
     public int GetEmailCount()
     {
-        return Commands.Where(f => f.showEmail).ToList().Count;
+        return Commands.Count;
+        //return Commands.Where(f => f.showEmail).ToList().Count;
     }
 
-    public List<EmailCommand> GetDisplayEmails()
-    {
-        return Commands.Where((f) => f.showEmail).ToList();
-    }
+    //public List<EmailCommand> GetDisplayEmails()
+    //{
+    //    return Commands.Where((f) => f.showEmail).ToList();
+    //}
 
-    public int GetUnreadCount()
-    {
-        return Commands.FindAll(x => !x.read).Count;
-    }
+    //public int GetUnreadCount()
+    //{
+    //    return Commands.FindAll(x => !x.read).Count;
+    //}
 }

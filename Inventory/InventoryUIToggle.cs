@@ -7,6 +7,11 @@ public class InventoryUIToggle : MonoBehaviour
     public CanvasGroup group;
     //bool inventoryActive;
 
+    void Start()
+    {
+        group = GetComponent<CanvasGroup>();
+    }
+
     public void InventoryToggle(bool toggle)
     {
         if (toggle)

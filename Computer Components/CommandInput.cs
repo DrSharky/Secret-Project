@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public class CommandInput : MonoBehaviour
 {
     [SerializeField]
-    private EmailCommandList emailInfo;
+    private List<PCEmailCommand> emailInfo;
+    //private EmailCommandList emailInfo;
 
     #region Header Variables
     [SerializeField]
@@ -86,6 +88,7 @@ public class CommandInput : MonoBehaviour
         if (!caretObject.activeInHierarchy)
             caretObject.SetActive(true);
 
+        inputField.SetActive(true);
         switch (state)
         {
             //case 1 for normal command input.
@@ -105,6 +108,7 @@ public class CommandInput : MonoBehaviour
             case ScreenType.Help:
                 caretObject.SetActive(false);
                 CommandSetup(displayConfig);
+                inputField.SetActive(false);
                 break;
             //case 4 for email text.
             case ScreenType.Email:
@@ -150,7 +154,7 @@ public class CommandInput : MonoBehaviour
     //TODO: Update this when returning to email Menu
     void GetEmailCommandHeader()
     {
-        int emailCount = emailInfo.Commands.Where(x => x.showEmail).Count();
+        int emailCount = emailInfo.Where(x => x.showEmail).Count();
         emailConfig.headerString = emailCount + " total emails, choose 1..." + emailCount + "\n[n]ext or [p]rev for more emails\n[q]uit to exit: ";
     }
 }
