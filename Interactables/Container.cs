@@ -14,7 +14,7 @@ public class Container : Interactable
     [SerializeField]
     private AudioClip closeClip;
 
-    void Start()
+    void Awake()
     {
         freezePlayer = true;
     }

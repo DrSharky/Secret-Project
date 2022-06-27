@@ -95,7 +95,7 @@ public class Caret : MonoBehaviour
     {
         originPos = rect.anchoredPosition;
         StartCoroutine(blinkRoutine);
-        if(debugCheck)
+        if (debugCheck)
             StartCoroutine(debugRoutine);
         initialized = true;
     }
@@ -105,14 +105,14 @@ public class Caret : MonoBehaviour
     {
         Reset();
         StopCoroutine(blinkRoutine);
-        if(debugCheck)
+        if (debugCheck)
             StopCoroutine(debugRoutine);
     }
 
     /// <summary> Reset the caret to its original position. </summary>
     public void Reset()
     {
-        if(initialized)
+        if (initialized)
             rect.anchoredPosition = originPos;
     }
 
@@ -141,7 +141,11 @@ public class Caret : MonoBehaviour
                 if (inputField.text.Length >= 0 && !empty)
                 {
                     //Set xAdv to the distance specified by the font, according to the last character entered.
+#if UNITY_2018
                     xAdv = tmpFont.characterDictionary[lastChar].xAdvance / fontSpacing;
+#else
+                    xAdv = tmpFont.characterLookupTable[lastChar].glyph.metrics.horizontalAdvance / fontSpacing;
+#endif
 
                     //Move the caret's position to the left xAdv distance.
                     rect.anchoredPosition = new Vector2(rect.anchoredPosition.x - xAdv, rect.anchoredPosition.y);
@@ -163,7 +167,11 @@ public class Caret : MonoBehaviour
                     //Set xAdv to the distance specified by the font, according to the new character entered.
                     //fontSpacing is an approximation to the distance difference between TMPro fonts and regular fonts.
                     //The 5.3 value may not work for all fonts, and should be tweaked accordingly.
+#if UNITY_2018
                     xAdv = tmpFont.characterDictionary[Input.inputString[0]].xAdvance / fontSpacing;
+#else
+                    xAdv = tmpFont.characterLookupTable[Input.inputString[0]].glyph.metrics.horizontalAdvance / fontSpacing;
+#endif
 
                     //Move the caret's position to the right xAdv distance.
                     rect.anchoredPosition = new Vector2(rect.anchoredPosition.x + xAdv, rect.anchoredPosition.y);

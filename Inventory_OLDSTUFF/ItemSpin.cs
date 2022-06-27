@@ -12,25 +12,35 @@ public class ItemSpin : MonoBehaviour
     public GraphicRaycaster raycaster;
     public GameEvent inventoryToggle;
     Vector3 rotOrigin;
-    BoxCollider childCollider;
     Transform childTransform;
-    Vector3 rotAxis;
     PointerEventData pointerData;
     Vector3 initMousePos = -Vector3.one;
     float mouseDistanceDelta;
     bool clickDown = false;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
         GameObject inventoryItemModel = transform.GetChild(0).gameObject;
-        childCollider = inventoryItemModel.GetComponent<BoxCollider>();
         childTransform = inventoryItemModel.transform;
+        rotOrigin = childTransform.TransformPoint(childTransform.localPosition);
+        Rigidbody rb = inventoryItemModel.FindCompInChildren<Rigidbody>();
+        Destroy(rb);
     }
 
-	// Update is called once per frame
-	void Update ()
+    public void SetNewItem()
     {
+        Start();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(childTransform == null)
+        {
+            return;
+        }
+
         if (inventoryActive)
         {
             if (Input.GetMouseButton(0))
@@ -38,7 +48,8 @@ public class ItemSpin : MonoBehaviour
                 if (clickDown)
                 {
                     float xRot = Input.GetAxis("Mouse X") * 12f;
-                    rotOrigin = childTransform.TransformPoint(childCollider.center);
+                    
+                    //rotOrigin = transform.position;
                     childTransform.RotateAround(rotOrigin, Vector3.up, -xRot);
                 }
                 else
@@ -62,19 +73,19 @@ public class ItemSpin : MonoBehaviour
 
                 if (!clickDown)
                 {
-                    rotOrigin = childTransform.TransformPoint(childCollider.center);
-                    childTransform.RotateAround(rotOrigin, Vector3.up, 3);
+                    //rotOrigin = childTransform.TransformPoint(childCollider.center);
+                    childTransform.RotateAround(rotOrigin, Vector3.up, 1);
                 }
             }
             else
             {
-                rotOrigin = childTransform.TransformPoint(childCollider.center);
-                childTransform.RotateAround(rotOrigin, Vector3.up, 3);
+                //rotOrigin = childTransform.TransformPoint(childCollider.center);
+                childTransform.RotateAround(rotOrigin, Vector3.up, 1);
                 clickDown = false;
                 initMousePos = -Vector3.one;
             }
         }
-	}
+    }
 
     public void InventoryToggled()
     {

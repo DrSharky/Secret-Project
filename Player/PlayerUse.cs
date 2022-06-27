@@ -6,18 +6,30 @@ public class PlayerUse : MonoBehaviour
     public Transform physObjParent;
     public Rigidbody playerRB;
     //public PlayerInventory playerInventory;
-
+    public InventoryObject inventory, equipment;
+    public GameObject inventoryCanvas;
+    public GameEvent inventoryToggle;
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
     //private int layerMask = 1024;
     private Interactable interactableObject;
     private string useString = "Use";
     private string interactableString = "Interactable";
     private string inventoryString = "InventoryObj";
-    UnityEngine.GameFoundation.Inventory playerInv;
-    [SerializeField]
-    PlayerInventoryManager inventoryManager;
+    private const string INVENTORY = "Inventory";
+    public static bool inventoryActive = false;
+    //UnityEngine.GameFoundation.Inventory playerInv;
+    //[SerializeField]
+    //PlayerInventoryManager inventoryManager;
 
     public LayerMask useMask;
+
+#if !UNITY_EDITOR
+    void Awake()
+    {
+        inventory.Load();
+    }
+#endif
+
 
     void Start()
     {
@@ -34,16 +46,41 @@ public class PlayerUse : MonoBehaviour
         playerRB.constraints = RigidbodyConstraints.FreezeAll;
     }
 
+    public void InventoryToggle()
+    {
+        if (!inventoryActive)
+        {
+            Freeze();
+            Time.timeScale = 0f;
+            inventoryCanvas.SetActive(true);
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Unfreeze();
+            Time.timeScale = 1f;
+            inventoryCanvas.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        inventoryActive = !inventoryActive;
+    }
+
     void Update()
     {
         //if (Input.GetKeyDown(KeyCode.Escape))
         //{
         //    playerRB.constraints = RigidbodyConstraints.FreezeRotation;
         //}
+        if (Input.GetButtonDown(INVENTORY) && !Computer.usingComputer)
+        {
+            inventoryToggle.Raise();
+        }
 
         //TODO: Replace using this static "usingComputer" variable with a generic variable
         //      that should be true/false when user can/can't activate object.
-        if (Input.GetButtonDown(useString) && !Computer.usingComputer)
+        if (Input.GetButtonDown(useString) && !Computer.usingComputer && Time.timeScale > 0f)
         {
             RaycastHit hit;
 
@@ -87,11 +124,15 @@ public class PlayerUse : MonoBehaviour
                 GameObject invGO = hit.collider.gameObject;
                 try
                 {
-                    //playerInv.AddItem(invGO.GetComponent<InventoryObjectScript>().id);
-                    InventoryObject objToAdd = invGO.GetComponent<InventoryObjectScript>().inventoryObj;
                     string hitName = hit.collider.name;
-                    AddToInventory(objToAdd, hitName);
-                    Destroy(invGO);
+                    GroundItem hitItem = hit.collider.GetComponent<GroundItem>();
+                    if (hitItem)
+                    {
+                        if (inventory.AddItem(new Item(hitItem.item), 1))
+                        {
+                            Destroy(invGO);
+                        }
+                    }
                 }
                 catch(System.Exception ex)
                 {
@@ -119,87 +160,23 @@ public class PlayerUse : MonoBehaviour
         }
     }
 
-    void AddToInventory(/*Player*/InventoryObject objToAdd, string hitName)
+    private void LateUpdate()
     {
-        //PlayerInventoryObject pio;
+        if (Input.GetKeyUp(KeyCode.KeypadPeriod))
+        {
+            inventory.Save();
+            equipment.Save();
+        }
+        else if (Input.GetKeyUp(KeyCode.KeypadEnter))
+        {
+            inventory.Load();
+            //equipment.Load();
+        }
+    }
 
-        //switch (objToAdd.type)
-        //{
-        //    case ItemType.Clothing:
-
-        //        pio = playerInventory.clothingItems.Find(x => x.inventoryObject == objToAdd);
-
-        //        if (pio != null)
-        //        {
-        //            //Add UI event to notify player they already have this clothing set.
-        //            //They shouldn't have a duplicate!
-        //        }
-        //        else
-        //        {
-        //            pio = new PlayerInventoryObject(objToAdd, 1);
-        //            playerInventory.clothingItems.Add(pio);
-        //        }
-        //        break;
-        //    case ItemType.Firearm:
-
-        //        pio = playerInventory.firearmItems.Find(x => x.inventoryObject == objToAdd);
-
-        //        if (pio != null)
-        //        {
-        //            /*playerInventory.firearmItems.FirstOrDefault(x => x.name == hitName).heldQuantity++;*/
-        //            //Add logic to increase ammo count if you pick up another gun of the same type.
-        //            //The ammo increase logic should also dictate whether your ammo is full on that gun type or not.
-        //        }
-        //        else
-        //        {
-        //            pio = new PlayerInventoryObject(objToAdd, 1);
-        //            playerInventory.firearmItems.Add(pio);
-        //        }
-        //        break;
-        //    case ItemType.General:
-
-        //        pio = playerInventory.generalItems.Find(x => x.inventoryObject == objToAdd);
-
-        //        if (pio != null)
-        //            playerInventory.generalItems.FirstOrDefault(x => x.inventoryObject.name == hitName).amountHeld++;
-        //        else
-        //        {
-        //            pio = new PlayerInventoryObject(objToAdd, 1);
-        //            playerInventory.generalItems.Add(pio);
-        //        }
-        //        break;
-        //    case ItemType.Melee:
-
-        //        pio = playerInventory.meleeItems.Find(x => x.inventoryObject == objToAdd);
-
-        //        if (pio != null)
-        //        {
-        //            //Add UI event to notify player they already have this weapon.
-        //            //They shouldn't have a duplicate!
-        //        }
-        //        else
-        //        {
-        //            pio = new PlayerInventoryObject(objToAdd, 1);
-        //            playerInventory.meleeItems.Add(pio);
-        //        }
-        //        break;
-        //    case ItemType.Quest:
-
-        //        pio = playerInventory.questItems.Find(x => x.inventoryObject == objToAdd);
-
-        //        if (pio != null)
-        //        {
-        //            //Add UI event to notify player they already have this quest item.
-        //            //They shouldn't have a duplicate!
-        //        }
-        //        else
-        //        {
-        //            pio = new PlayerInventoryObject(objToAdd, 1);
-        //            playerInventory.questItems.Add(pio);
-        //        }
-        //        break;
-        //    default:
-        //        break;
-        //}
+    public void OnApplicationQuit()
+    {
+        inventory.Clear();
+        equipment.Clear();
     }
 }

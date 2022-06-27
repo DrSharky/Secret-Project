@@ -24,6 +24,16 @@ public class Radio : Interactable
         }
     }
 
+    bool inventoryActive = false;
+    public void Pause()
+    {
+        if (!inventoryActive)
+            radioShow.Pause();
+        else
+            radioShow.Play();
+        inventoryActive = !inventoryActive;
+    }
+
     public override void Activate()
     {
         if (radioShow.volume == 0.0f)

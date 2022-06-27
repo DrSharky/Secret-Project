@@ -528,7 +528,6 @@ public class Computer : Interactable
         currentScreenType = ScreenType.EmailMenu;
         commandText.text = null;
         emailMenuScreen.Raise();
-        
     }
 
     //Display the correct menu & commands.
@@ -569,7 +568,7 @@ public class Computer : Interactable
         float beginningTime = Time.time;
         while (true)
         {
-            if(Time.time - (beginningTime + 1) > currentCommandMenu.compCommand.password.Length)
+            if(Time.time - (beginningTime + 1) > waitTime)
                 break;
             else
                 RandomizeLetters((int)(Time.time - beginningTime));

@@ -25,5 +25,6 @@
     Humanity,
     Discipline1,
     Discipline2,
-    Discipline3
+    Discipline3,
+    Soak
 }

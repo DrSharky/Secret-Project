@@ -8,7 +8,7 @@ public class InteractHighlight : MonoBehaviour
     List<GameObject> gameObjects = new List<GameObject>();
 
     //1024 = 1 << 10. Raycast should only cast on Camera layer.
-    private int layerMask = 1024;
+    public LayerMask layerMask;
     
     void Update()
     {
