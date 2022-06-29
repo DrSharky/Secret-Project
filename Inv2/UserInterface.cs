@@ -54,6 +54,8 @@ public abstract class UserInterface : MonoBehaviour
         }
     }
 
+    public abstract void SelectFirst();
+
     public abstract GameObject AddSlot();
 
     public void OnSlotUpdate(InventorySlot slot)

@@ -36,6 +36,11 @@ public class StaticInterface : UserInterface
         return;
     }
 
+    public override void SelectFirst()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override GameObject AddSlot()
     {
         return null;

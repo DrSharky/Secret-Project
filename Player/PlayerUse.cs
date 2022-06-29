@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Linq;
 
 public class PlayerUse : MonoBehaviour
@@ -181,7 +182,10 @@ public class PlayerUse : MonoBehaviour
 
     public void OnApplicationQuit()
     {
-        inventory.Clear();
-        equipment.Clear();
+        List<InventoryObject> invObjs = inventories.database.Values.ToList();
+        for(int i = 0; i < invObjs.Count; i++)
+        {
+            invObjs[i].Clear();
+        }
     }
 }

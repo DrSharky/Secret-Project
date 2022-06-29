@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -33,14 +31,17 @@ public class DynamicInterface : UserInterface
     public void Awake()
     {
         slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
+        catList = categories.database.Keys.ToList();
+    }
+
+    private void OnEnable()
+    {
+        SelectFirst();
     }
 
     public override void CreateSlots()
     {
-        catList = categories.database.Keys.ToList();
         int startIndex = 0;
-
-        categoryPic.sprite = categories.database[category];
 
         NUMBER_OF_COLUMNS = Mathf.CeilToInt((float)inventory.ItemCount / (float)NUMBER_OF_ROWS);
 
@@ -49,10 +50,9 @@ public class DynamicInterface : UserInterface
             X_START = (int)(-(slotImage.rect.width/2)*(NUMBER_OF_COLUMNS-1));
         }
 
-        //slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
         if(slotsOnInterface.Count > 0)
         {
-            startIndex = slotsOnInterface.Count - 1;
+            startIndex = slotsOnInterface.Count;
         }
         
         for (int i = startIndex; i < inventory.ItemCount; i++)
@@ -73,6 +73,14 @@ public class DynamicInterface : UserInterface
         }
     }
 
+    public override void SelectFirst()
+    {
+        if (slotsOnInterface.Count > 0)
+        {
+            OnClick(slotsOnInterface.Keys.ToList().First());
+        }
+    }
+
     int prevSlotCount = 0;
 
     public override void ChangeCategory(int index)
@@ -90,31 +98,53 @@ public class DynamicInterface : UserInterface
         UpdateInventoryLinks();
 
         int itemDifference = slotsOnInterface.Count - inventory.ItemCount;
-        if(itemDifference > 0)
+        List<GameObject> slotObjs;
+        if (itemDifference > 0)
         {
             for(int i = prevSlotCount; i > inventory.ItemCount; i--)
             {
                 RemoveLast(i);
             }
+            if(slotsOnInterface.Count > 0)
+            {
+                slotObjs = slotsOnInterface.Keys.ToList();
+                for(int i = 0; i < inventory.ItemCount; i++)
+                {
+                    inventory.GetSlots[i].slotDisplay = slotObjs[i];
+                }
+                Rebuild();
+                AssignImages();
+            }
         }
         if(itemDifference < 0)
         {
+            CreateSlots();
+            slotObjs = slotsOnInterface.Keys.ToList();
+            for (int i = 0; i < inventory.ItemCount; i++)
+            {
+                inventory.GetSlots[i].slotDisplay = slotObjs[i];
+            }
             Rebuild();
+        }
+        SelectFirst();
+    }
+
+    void AssignImages()
+    {
+        for (int i = 0; i < inventory.ItemCount; i++)
+        {
+            inventory.GetSlots[i].slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = inventory.GetSlots[i].GetItemObject().uiDisplay;
         }
     }
 
     void Rebuild()
     {
-        CreateSlots();
         for (int i = 0; i < inventory.GetSlots.Count; i++)
         {
             inventory.GetSlots[i].parent = this;
             inventory.GetSlots[i].onAfterUpdated += OnSlotUpdate;
         }
-        for(int i = 0; i < inventory.ItemCount; i++)
-        {
-            inventory.GetSlots[i].slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = inventory.GetSlots[i].GetItemObject().uiDisplay;
-        }
+        AssignImages();
     }
 
     void RemoveLast(int index)
@@ -123,11 +153,6 @@ public class DynamicInterface : UserInterface
         GameObject lastObj = slotsOnInterface.Last().Key;
         slotsOnInterface.Remove(lastObj);
         Destroy(lastObj);
-        
-        //last.item = new Item();
-        //last.amount = 0;
-        //last.slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = null;
-        //UpdateSlots(index);
     }
 
     public override void UpdateSlots(int index)
@@ -159,7 +184,6 @@ public class DynamicInterface : UserInterface
         {
             if(slotsOnInterface[slotObject].item != item)
             {
-                //TODO: FIX BUG HERE WHEN SELECTING OBJECTS AGAIN AFTER PICKING THEM UP AGAIN AFTER DROPPING THEM.
                 slotObject.transform.GetChild(0).GetComponent<Image>().sprite = slotsOnInterface[slotObject].item.uiDisplay;
             }
             else
