@@ -26,6 +26,11 @@ public class StaticInterface : UserInterface
         }
     }
 
+    public override void ChangeCategory(int index)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override void UpdateSlots(int index)
     {
         return;
@@ -35,7 +40,7 @@ public class StaticInterface : UserInterface
     {
         return null;
     }
-    public override void SetItemInfo(/*Item item*/GameObject obj)
+    public override void SetItemInfo(GameObject obj)
     {
         return;
     }

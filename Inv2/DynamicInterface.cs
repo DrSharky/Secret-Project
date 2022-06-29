@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class DynamicInterface : UserInterface
 {
@@ -18,11 +20,28 @@ public class DynamicInterface : UserInterface
     public TMPro.TMP_Text itemDescription;
     public Image invPic;
     public RawImage invSpinImage;
+    public Image categoryPic;
+    public InventoryCategoryDatabase categories;
+    public InventoryDatabase inventories;
+    public InventoryType invType;
+    public InventoryCategory category;
 
+    private Item currentItem;
+    private List<InventoryCategory> catList;
     private int NUMBER_OF_COLUMNS = 1;
+
+    public void Awake()
+    {
+        slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
+    }
 
     public override void CreateSlots()
     {
+        catList = categories.database.Keys.ToList();
+        int startIndex = 0;
+
+        categoryPic.sprite = categories.database[category];
+
         NUMBER_OF_COLUMNS = Mathf.CeilToInt((float)inventory.ItemCount / (float)NUMBER_OF_ROWS);
 
         if(NUMBER_OF_COLUMNS > 1)
@@ -30,9 +49,13 @@ public class DynamicInterface : UserInterface
             X_START = (int)(-(slotImage.rect.width/2)*(NUMBER_OF_COLUMNS-1));
         }
 
-        slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
+        //slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
+        if(slotsOnInterface.Count > 0)
+        {
+            startIndex = slotsOnInterface.Count - 1;
+        }
         
-        for (int i = 0; i < inventory.ItemCount; i++)
+        for (int i = startIndex; i < inventory.ItemCount; i++)
         {
             var obj = Instantiate(inventoryPrefab, Vector3.zero, Quaternion.identity, transform);
             obj.GetComponent<RectTransform>().localPosition = GetPosition(i);
@@ -46,13 +69,65 @@ public class DynamicInterface : UserInterface
 
             inventory.GetSlots[i].slotDisplay = obj;
 
-            //if(inventory.GetSlots[i].item.Id > -1)
-            //{
-            //    inventory.GetSlots[i].slotDisplay.transform.GetChild(0).GetComponent<UnityEngine.UI.Image>().sprite = inventory.GetSlots[i].GetItemObject().uiDisplay;
-            //}
-
             slotsOnInterface.Add(obj, inventory.GetSlots[i]);
         }
+    }
+
+    int prevSlotCount = 0;
+
+    public override void ChangeCategory(int index)
+    {
+        int catIndex = catList.IndexOf(category) + index;
+        prevSlotCount = inventory.ItemCount;
+        if(catIndex < 0)
+        {
+            catIndex = 3;
+        }
+        category = catList[catIndex % catList.Count];
+        categoryPic.sprite = categories.database[category];
+
+        inventory = inventories.database[category];
+        UpdateInventoryLinks();
+
+        int itemDifference = slotsOnInterface.Count - inventory.ItemCount;
+        if(itemDifference > 0)
+        {
+            for(int i = prevSlotCount; i > inventory.ItemCount; i--)
+            {
+                RemoveLast(i);
+            }
+        }
+        if(itemDifference < 0)
+        {
+            Rebuild();
+        }
+    }
+
+    void Rebuild()
+    {
+        CreateSlots();
+        for (int i = 0; i < inventory.GetSlots.Count; i++)
+        {
+            inventory.GetSlots[i].parent = this;
+            inventory.GetSlots[i].onAfterUpdated += OnSlotUpdate;
+        }
+        for(int i = 0; i < inventory.ItemCount; i++)
+        {
+            inventory.GetSlots[i].slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = inventory.GetSlots[i].GetItemObject().uiDisplay;
+        }
+    }
+
+    void RemoveLast(int index)
+    {
+        InventorySlot last = slotsOnInterface.Last().Value;
+        GameObject lastObj = slotsOnInterface.Last().Key;
+        slotsOnInterface.Remove(lastObj);
+        Destroy(lastObj);
+        
+        //last.item = new Item();
+        //last.amount = 0;
+        //last.slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = null;
+        //UpdateSlots(index);
     }
 
     public override void UpdateSlots(int index)
@@ -76,7 +151,7 @@ public class DynamicInterface : UserInterface
         }
     }
 
-    public override void SetItemInfo(/*Item item*/GameObject obj)
+    public override void SetItemInfo(GameObject obj)
     {
         Item item = slotsOnInterface[obj].item;
 
@@ -84,6 +159,7 @@ public class DynamicInterface : UserInterface
         {
             if(slotsOnInterface[slotObject].item != item)
             {
+                //TODO: FIX BUG HERE WHEN SELECTING OBJECTS AGAIN AFTER PICKING THEM UP AGAIN AFTER DROPPING THEM.
                 slotObject.transform.GetChild(0).GetComponent<Image>().sprite = slotsOnInterface[slotObject].item.uiDisplay;
             }
             else
@@ -92,7 +168,17 @@ public class DynamicInterface : UserInterface
             }
         }
 
-        for(int i = 0; i < itemSpinParent.childCount; i++)
+        if (currentItem != null)
+        {
+            if (item.Id == currentItem.Id)
+            {
+                return;
+            }
+        }
+
+        currentItem = item;
+
+        for (int i = 0; i < itemSpinParent.childCount; i++)
         {
             DestroyImmediate(itemSpinParent.GetChild(i).gameObject);
         }

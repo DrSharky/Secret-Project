@@ -9,6 +9,8 @@ public class Item
     public bool CanSell;
     public bool CanUse;
     public bool CanEquip;
+    public int SellPrice;
+    public int BuyPrice;
     public GameObject groundItem;
     public Sprite InvPic;
     public Sprite uiDisplay;
@@ -17,6 +19,7 @@ public class Item
     public string infoTitle;
     [TextArea(15, 20)]
     public string description;
+    public InventoryCategory category;
 
     public Item()
     {
@@ -31,6 +34,8 @@ public class Item
         CanSell = item.data.CanSell;
         CanUse = item.data.CanUse;
         CanEquip = item.data.CanEquip;
+        SellPrice = item.data.SellPrice;
+        BuyPrice = item.data.BuyPrice;
         groundItem = item.data.groundItem;
         spinnable = item.data.spinnable;
         infoTitle = item.data.infoTitle;
@@ -38,6 +43,7 @@ public class Item
         uiDisplay = item.data.uiDisplay;
         uiDisplaySelect = item.uiDisplaySelect;
         description = item.data.description;
+        category = item.data.category;
         buffs = new ItemBuff[item.data.buffs.Length];
 
         for (int i = 0; i < buffs.Length; i++)

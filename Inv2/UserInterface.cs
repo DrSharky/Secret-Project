@@ -14,7 +14,7 @@ public abstract class UserInterface : MonoBehaviour
     public InventoryObject inventory;
     private InventoryObject _previousInventory;
     public Dictionary<GameObject, InventorySlot> slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
-    public GameEvent selectItem;
+    //public GameEvent selectItem;
 
     public void Start()
     {
@@ -76,7 +76,6 @@ public abstract class UserInterface : MonoBehaviour
         }
     }
 
-    //TODO: 
     public void SlotRemove(InventorySlot slot)
     {
         int index = inventory.GetSlots.IndexOf(slot);
@@ -84,9 +83,9 @@ public abstract class UserInterface : MonoBehaviour
         slot.amount = 0;
         slot.slotDisplay.transform.GetChild(0).GetComponent<Image>().sprite = null;
         UpdateSlots(index);
-
-        UpdateInventoryLinks();
     }
+
+    public abstract void ChangeCategory(int index);
 
     public abstract void UpdateSlots(int index);
 
@@ -111,10 +110,10 @@ public abstract class UserInterface : MonoBehaviour
     public void OnClick(GameObject obj)
     {
         obj.transform.GetChild(0).gameObject.SetActive(true);
-        SetItemInfo(/*slotsOnInterface[obj].item*/obj);
+        SetItemInfo(obj);
     }
 
-    public abstract void SetItemInfo(/*Item item*/GameObject obj);
+    public abstract void SetItemInfo(GameObject obj);
 
     public void OnEnter(GameObject obj)
     {
@@ -161,6 +160,8 @@ public abstract class UserInterface : MonoBehaviour
         {
             Instantiate(slotsOnInterface[obj].item.groundItem, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.identity);
             slotsOnInterface[obj].RemoveItem();
+            slotsOnInterface.Remove(slotsOnInterface.Keys.Last());
+            UpdateInventoryLinks();
             return;
         }
         if (MouseData.slotHoveredOver)

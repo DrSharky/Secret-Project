@@ -30,3 +30,5 @@ public abstract class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TVal
 		}
 	}
 }
+
+//NOTE: Remember, if you want to serialize a dictionary, Make a class that INHERITS this one. Abstract can't be serialized. (see InventoryCategoryDatabase.cs for example if you forgot.)

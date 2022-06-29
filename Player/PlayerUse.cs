@@ -7,6 +7,7 @@ public class PlayerUse : MonoBehaviour
     public Rigidbody playerRB;
     //public PlayerInventory playerInventory;
     public InventoryObject inventory, equipment;
+    public InventoryDatabase inventories;
     public GameObject inventoryCanvas;
     public GameEvent inventoryToggle;
     //1024 = 1 << 10. Raycast should only cast on Interactables layer.
@@ -128,10 +129,14 @@ public class PlayerUse : MonoBehaviour
                     GroundItem hitItem = hit.collider.GetComponent<GroundItem>();
                     if (hitItem)
                     {
-                        if (inventory.AddItem(new Item(hitItem.item), 1))
+                        if(inventories.database[hitItem.item.data.category].AddItem(new Item(hitItem.item), 1))
                         {
                             Destroy(invGO);
                         }
+                        //if (inventory.AddItem(new Item(hitItem.item), 1))
+                        //{
+                        //    Destroy(invGO);
+                        //}
                     }
                 }
                 catch(System.Exception ex)

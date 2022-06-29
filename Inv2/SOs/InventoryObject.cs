@@ -13,6 +13,7 @@ public class InventoryObject : ScriptableObject
     public string savePath;
     public ItemDatabaseObject database;
     public InterfaceType type;
+    public InventoryCategory category;
     //public int MAX_ITEMS;
     [SerializeField]
     private Inventory Container = new Inventory();
